@@ -1,11 +1,11 @@
 .venv
 **/__pycache__
 semiconductor_state
+logs
+evidence
+docs
 mlruns
 *.db
 .env
-output
-team_share
-data/uploads
-data/semiconductor_etch_timeseries.csv
-data/semiconductor_etch_timeseries_defect20.csv
+.claude
+scripts

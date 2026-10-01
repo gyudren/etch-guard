@@ -1,0 +1,459 @@
+{
+  "generated_at": "2026-10-01T09:25:27",
+  "bundle": "20261001T002500-c775a1",
+  "policy_table": [
+    {
+      "window_cycles": 24,
+      "window_hours": 12.0,
+      "threshold": 4.0,
+      "consecutive": 1,
+      "false_alarms_per_equipment_month": 2.57,
+      "drift_windows_flagged": 0.841,
+      "detection_delay_hours": [
+        12.0,
+        12.0,
+        12.0,
+        12.0,
+        12.0
+      ]
+    },
+    {
+      "window_cycles": 24,
+      "window_hours": 12.0,
+      "threshold": 4.5,
+      "consecutive": 1,
+      "false_alarms_per_equipment_month": 2.36,
+      "drift_windows_flagged": 0.785,
+      "detection_delay_hours": [
+        12.0,
+        12.0,
+        12.0,
+        12.0,
+        12.0
+      ]
+    },
+    {
+      "window_cycles": 24,
+      "window_hours": 12.0,
+      "threshold": 5.0,
+      "consecutive": 1,
+      "false_alarms_per_equipment_month": 2.06,
+      "drift_windows_flagged": 0.724,
+      "detection_delay_hours": [
+        12.0,
+        12.0,
+        12.0,
+        12.0,
+        12.0
+      ]
+    },
+    {
+      "window_cycles": 24,
+      "window_hours": 12.0,
+      "threshold": 6.0,
+      "consecutive": 1,
+      "false_alarms_per_equipment_month": 1.32,
+      "drift_windows_flagged": 0.563,
+      "detection_delay_hours": [
+        12.0,
+        12.0,
+        24.0,
+        24.0,
+        12.0
+      ]
+    },
+    {
+      "window_cycles": 24,
+      "window_hours": 12.0,
+      "threshold": 4.0,
+      "consecutive": 2,
+      "false_alarms_per_equipment_month": 0.66,
+      "drift_windows_flagged": 0.798,
+      "detection_delay_hours": [
+        24.0,
+        24.0,
+        24.0,
+        24.0,
+        24.0
+      ]
+    },
+    {
+      "window_cycles": 24,
+      "window_hours": 12.0,
+      "threshold": 4.5,
+      "consecutive": 2,
+      "false_alarms_per_equipment_month": 0.51,
+      "drift_windows_flagged": 0.729,
+      "detection_delay_hours": [
+        24.0,
+        24.0,
+        24.0,
+        24.0,
+        24.0
+      ]
+    },
+    {
+      "window_cycles": 24,
+      "window_hours": 12.0,
+      "threshold": 5.0,
+      "consecutive": 2,
+      "false_alarms_per_equipment_month": 0.27,
+      "drift_windows_flagged": 0.656,
+      "detection_delay_hours": [
+        24.0,
+        24.0,
+        24.0,
+        24.0,
+        24.0
+      ]
+    },
+    {
+      "window_cycles": 24,
+      "window_hours": 12.0,
+      "threshold": 6.0,
+      "consecutive": 2,
+      "false_alarms_per_equipment_month": 0.06,
+      "drift_windows_flagged": 0.457,
+      "detection_delay_hours": [
+        24.0,
+        24.0,
+        36.0,
+        36.0,
+        24.0
+      ]
+    },
+    {
+      "window_cycles": 24,
+      "window_hours": 12.0,
+      "threshold": 4.0,
+      "consecutive": 3,
+      "false_alarms_per_equipment_month": 0.03,
+      "drift_windows_flagged": 0.768,
+      "detection_delay_hours": [
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0
+      ]
+    },
+    {
+      "window_cycles": 24,
+      "window_hours": 12.0,
+      "threshold": 4.5,
+      "consecutive": 3,
+      "false_alarms_per_equipment_month": 0.03,
+      "drift_windows_flagged": 0.692,
+      "detection_delay_hours": [
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0
+      ]
+    },
+    {
+      "window_cycles": 24,
+      "window_hours": 12.0,
+      "threshold": 5.0,
+      "consecutive": 3,
+      "false_alarms_per_equipment_month": 0.0,
+      "drift_windows_flagged": 0.605,
+      "detection_delay_hours": [
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0
+      ]
+    },
+    {
+      "window_cycles": 24,
+      "window_hours": 12.0,
+      "threshold": 6.0,
+      "consecutive": 3,
+      "false_alarms_per_equipment_month": 0.0,
+      "drift_windows_flagged": 0.392,
+      "detection_delay_hours": [
+        36.0,
+        36.0,
+        48.0,
+        48.0,
+        36.0
+      ]
+    },
+    {
+      "window_cycles": 48,
+      "window_hours": 24.0,
+      "threshold": 4.0,
+      "consecutive": 1,
+      "false_alarms_per_equipment_month": 2.07,
+      "drift_windows_flagged": 0.849,
+      "detection_delay_hours": [
+        24.0,
+        24.0,
+        24.0,
+        24.0,
+        24.0
+      ]
+    },
+    {
+      "window_cycles": 48,
+      "window_hours": 24.0,
+      "threshold": 4.5,
+      "consecutive": 1,
+      "false_alarms_per_equipment_month": 1.56,
+      "drift_windows_flagged": 0.801,
+      "detection_delay_hours": [
+        24.0,
+        24.0,
+        24.0,
+        24.0,
+        24.0
+      ]
+    },
+    {
+      "window_cycles": 48,
+      "window_hours": 24.0,
+      "threshold": 5.0,
+      "consecutive": 1,
+      "false_alarms_per_equipment_month": 1.32,
+      "drift_windows_flagged": 0.74,
+      "detection_delay_hours": [
+        24.0,
+        24.0,
+        24.0,
+        24.0,
+        24.0
+      ]
+    },
+    {
+      "window_cycles": 48,
+      "window_hours": 24.0,
+      "threshold": 6.0,
+      "consecutive": 1,
+      "false_alarms_per_equipment_month": 1.05,
+      "drift_windows_flagged": 0.585,
+      "detection_delay_hours": [
+        24.0,
+        24.0,
+        24.0,
+        24.0,
+        24.0
+      ]
+    },
+    {
+      "window_cycles": 48,
+      "window_hours": 24.0,
+      "threshold": 4.0,
+      "consecutive": 2,
+      "false_alarms_per_equipment_month": 0.27,
+      "drift_windows_flagged": 0.794,
+      "detection_delay_hours": [
+        48.0,
+        48.0,
+        48.0,
+        48.0,
+        48.0
+      ]
+    },
+    {
+      "window_cycles": 48,
+      "window_hours": 24.0,
+      "threshold": 4.5,
+      "consecutive": 2,
+      "false_alarms_per_equipment_month": 0.09,
+      "drift_windows_flagged": 0.74,
+      "detection_delay_hours": [
+        48.0,
+        48.0,
+        48.0,
+        48.0,
+        48.0
+      ]
+    },
+    {
+      "window_cycles": 48,
+      "window_hours": 24.0,
+      "threshold": 5.0,
+      "consecutive": 2,
+      "false_alarms_per_equipment_month": 0.06,
+      "drift_windows_flagged": 0.672,
+      "detection_delay_hours": [
+        48.0,
+        48.0,
+        48.0,
+        48.0,
+        48.0
+      ]
+    },
+    {
+      "window_cycles": 48,
+      "window_hours": 24.0,
+      "threshold": 6.0,
+      "consecutive": 2,
+      "false_alarms_per_equipment_month": 0.0,
+      "drift_windows_flagged": 0.48,
+      "detection_delay_hours": [
+        48.0,
+        48.0,
+        48.0,
+        48.0,
+        48.0
+      ]
+    },
+    {
+      "window_cycles": 48,
+      "window_hours": 24.0,
+      "threshold": 4.0,
+      "consecutive": 3,
+      "false_alarms_per_equipment_month": 0.0,
+      "drift_windows_flagged": 0.746,
+      "detection_delay_hours": [
+        72.0,
+        72.0,
+        72.0,
+        72.0,
+        72.0
+      ]
+    },
+    {
+      "window_cycles": 48,
+      "window_hours": 24.0,
+      "threshold": 4.5,
+      "consecutive": 3,
+      "false_alarms_per_equipment_month": 0.0,
+      "drift_windows_flagged": 0.691,
+      "detection_delay_hours": [
+        72.0,
+        72.0,
+        72.0,
+        72.0,
+        72.0
+      ]
+    },
+    {
+      "window_cycles": 48,
+      "window_hours": 24.0,
+      "threshold": 5.0,
+      "consecutive": 3,
+      "false_alarms_per_equipment_month": 0.0,
+      "drift_windows_flagged": 0.617,
+      "detection_delay_hours": [
+        72.0,
+        72.0,
+        72.0,
+        72.0,
+        72.0
+      ]
+    },
+    {
+      "window_cycles": 48,
+      "window_hours": 24.0,
+      "threshold": 6.0,
+      "consecutive": 3,
+      "false_alarms_per_equipment_month": 0.0,
+      "drift_windows_flagged": 0.402,
+      "detection_delay_hours": [
+        72.0,
+        72.0,
+        72.0,
+        72.0,
+        72.0
+      ]
+    }
+  ],
+  "psi": {
+    "weeks": {
+      "normal": 70,
+      "drift": 115
+    },
+    "environment_sensor_median_psi_normal_weeks": {
+      "same_month_reference": {
+        "ambient_temperature_c": 0.282,
+        "ambient_humidity_pct": 0.385,
+        "cooling_water_temperature_c": 0.461
+      },
+      "pooled_reference": {
+        "ambient_temperature_c": 4.865,
+        "ambient_humidity_pct": 4.724,
+        "cooling_water_temperature_c": 5.625
+      }
+    },
+    "fixed_psi_0.25_alarm_rate_normal_weeks": 1.0,
+    "typical_psi": {
+      "ambient_temperature_c": 0.201,
+      "ambient_humidity_pct": 0.133,
+      "cooling_water_temperature_c": 0.346,
+      "chamber_temperature_c": 1.171,
+      "chamber_pressure_mtorr": 1.318,
+      "cf4_flow_sccm": 0.222,
+      "o2_flow_sccm": 0.182,
+      "rf_power_w": 0.453,
+      "process_time_sec": 0.298,
+      "vibration_mm_s": 1.658,
+      "particle_count": 1.528
+    },
+    "top3_ratio_sensors": {
+      "normal": [
+        [
+          "ambient_humidity_pct",
+          46
+        ],
+        [
+          "ambient_temperature_c",
+          35
+        ],
+        [
+          "cooling_water_temperature_c",
+          31
+        ],
+        [
+          "o2_flow_sccm",
+          23
+        ],
+        [
+          "cf4_flow_sccm",
+          16
+        ]
+      ],
+      "drift": [
+        [
+          "rf_power_w",
+          115
+        ],
+        [
+          "chamber_pressure_mtorr",
+          90
+        ],
+        [
+          "vibration_mm_s",
+          55
+        ],
+        [
+          "ambient_temperature_c",
+          27
+        ],
+        [
+          "cooling_water_temperature_c",
+          20
+        ]
+      ]
+    }
+  },
+  "chosen_policy": {
+    "window_cycles": 24,
+    "window_hours": 12.0,
+    "threshold": 5.0,
+    "consecutive": 3,
+    "false_alarms_per_equipment_month": 0.0,
+    "drift_windows_flagged": 0.605,
+    "detection_delay_hours": [
+      36.0,
+      36.0,
+      36.0,
+      36.0,
+      36.0
+    ]
+  }
+}

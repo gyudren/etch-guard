@@ -1,0 +1,3 @@
+    "registered_version": 3,
+    "previous_production": 2
+[GATE FAILED] failed=['rmse'] rmse=3.164 → 기존 Production 유지

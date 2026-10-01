@@ -1,0 +1,14 @@
+# 가상환경·캐시
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# 실행 중 생성되는 상태 (MLflow DB·artifact·업로드·재학습 번들·로그)
+logs/
+semiconductor_state/mlflow.db
+semiconductor_state/artifacts/
+semiconductor_state/uploads/
+semiconductor_state/*.tmp
+semiconductor_state/bundles/*
+!semiconductor_state/bundles/20261001T002500-c775a1/

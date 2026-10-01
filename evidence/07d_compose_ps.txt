@@ -1,0 +1,2 @@
+NAME                    IMAGE           COMMAND                  SERVICE     CREATED         STATUS                   PORTS
+etchguard-etchguard-1   etchguard:3.0   "python -m uvicorn s…"   etchguard   3 minutes ago   Up 3 minutes (healthy)   127.0.0.1:8000->8000/tcp

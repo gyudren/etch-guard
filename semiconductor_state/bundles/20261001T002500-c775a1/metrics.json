@@ -1,4 +1,5 @@
 {
+  "mode": "base",
   "dataset_sha256": "f35cb01ebc67f380e8461b7a81218c56fba193fa49d261ad72d682c705b818c3",
   "data": {
     "rows": 263040,
@@ -28,6 +29,11 @@
     ]
   },
   "epochs_completed": 12,
+  "params": {
+    "epochs": 12,
+    "learning_rate": 0.001,
+    "split": "train_2023_2024|val|test|drift"
+  },
   "split_ranges": {
     "ETCH-01": {
       "train": [
@@ -206,7 +212,6 @@
       "rmse_max": 4.0,
       "recall_min": 0.8,
       "precision_min": 0.8
-    },
-    "cohort": "validation"
+    }
   }
 }

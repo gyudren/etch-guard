@@ -7,7 +7,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .config import FEATURES, SEQ_LEN
+from .config import FEATURES, SEQ_LEN, latest_data
 
 
 def read_data(source):
@@ -107,3 +107,33 @@ def transform(x, scaler):
     lo = np.array(scaler["feature_min"], dtype="float32")
     span = np.array(scaler["feature_max"], dtype="float32") - lo
     return (np.asarray(x, dtype="float32") - lo) / np.where(span == 0, 1, span)
+
+
+_series_cache = {}
+
+
+def load_series(path=None):
+    """업로드 저장소의 최신 CSV를 파싱해 캐시한다. 파일이 바뀌면(mtime) 다시 읽는다."""
+    path = Path(path or latest_data()).resolve()
+    key = (str(path), path.stat().st_mtime_ns)
+    if _series_cache.get("key") != key:
+        series = read_data(path)
+        _series_cache.clear()
+        _series_cache.update(key=key, series=series)
+    return path, _series_cache["series"]
+
+
+def to_records(g, start, end, with_label=True):
+    """장비 시계열 구간을 API 페이로드 형식으로 변환한다."""
+    rows = []
+    for i in range(start, end):
+        row = {"timestamp": g["time"][i].isoformat(), **dict(zip(FEATURES, map(float, g["x"][i])))}
+        if with_label:
+            row["anomaly_score"] = float(g["y"][i])
+        rows.append(row)
+    return rows
+
+
+def windows(x_scaled, start, end):
+    """target 인덱스 start..end-1 각각에 대해 직전 SEQ_LEN 사이클 입력을 쌓는다."""
+    return np.stack([x_scaled[i - SEQ_LEN:i] for i in range(start, end)]).astype("float32")

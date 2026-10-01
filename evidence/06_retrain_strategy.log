@@ -1,0 +1,73 @@
+WARNING:tensorflow:5 out of the last 9 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x1312a19e0> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+WARNING:tensorflow:6 out of the last 10 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x1312a19e0> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+{
+  "train_samples": 1340,
+  "until": "2025-07-27T13:30:00",
+  "production_v1_no_retrain": {
+    "recent_holdout": 7.858,
+    "next_week_unseen": 7.295,
+    "golden_normal": 3.105
+  },
+  "warm_start_finetune": {
+    "lr": 0.0001,
+    "epochs": 10,
+    "seeds": [
+      {
+        "recent_holdout": 2.638,
+        "next_week_unseen": 3.551,
+        "golden_normal": 3.396
+      },
+      {
+        "recent_holdout": 2.661,
+        "next_week_unseen": 3.563,
+        "golden_normal": 3.377
+      },
+      {
+        "recent_holdout": 2.649,
+        "next_week_unseen": 3.568,
+        "golden_normal": 3.391
+      }
+    ],
+    "mean": {
+      "recent_holdout": 2.649,
+      "next_week_unseen": 3.561,
+      "golden_normal": 3.388
+    },
+    "std": {
+      "recent_holdout": 0.009,
+      "next_week_unseen": 0.007,
+      "golden_normal": 0.008
+    }
+  },
+  "scratch_same_data": {
+    "lr": 0.001,
+    "epochs": 30,
+    "seeds": [
+      {
+        "recent_holdout": 2.701,
+        "next_week_unseen": 3.747,
+        "golden_normal": 6.647
+      },
+      {
+        "recent_holdout": 3.565,
+        "next_week_unseen": 4.42,
+        "golden_normal": 7.099
+      },
+      {
+        "recent_holdout": 2.992,
+        "next_week_unseen": 3.909,
+        "golden_normal": 5.535
+      }
+    ],
+    "mean": {
+      "recent_holdout": 3.086,
+      "next_week_unseen": 4.025,
+      "golden_normal": 6.427
+    },
+    "std": {
+      "recent_holdout": 0.359,
+      "next_week_unseen": 0.287,
+      "golden_normal": 0.657
+    }
+  }
+}
