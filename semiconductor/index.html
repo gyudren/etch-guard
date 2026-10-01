@@ -1,0 +1,20 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EtchGuard · Day 1–2</title>
+<style>body{font:16px/1.7 system-ui;background:#101a26;color:#e7eef8;max-width:1000px;margin:50px auto;padding:0 24px}h1{font-size:36px}section{background:#1a293b;padding:24px;margin:24px 0;border-radius:12px}button,a{background:#79dacc;color:#08242b;border:0;border-radius:6px;padding:10px 18px;cursor:pointer;text-decoration:none}textarea,pre{box-sizing:border-box;width:100%;background:#101a26;color:#cce8e3;padding:16px;border:1px solid #415467;border-radius:6px;overflow:auto}textarea{height:230px}small{color:#b6c2d3}button:disabled{opacity:.5}</style>
+<h1>EtchGuard</h1><p>반도체 식각 장비 · 다음 30분의 이상 점수 예측</p>
+<small>합성 데이터 PoC · 점수 ≥70을 HIGH로 정의 · 실제 불량 확률이나 장비 고장 보증이 아닙니다.</small>
+<p><a href="/docs">Swagger API 문서</a> <button onclick="health()">서버 상태</button></p><pre id="health">상태 조회 중</pre>
+<section><h2>1. 데이터 업로드</h2><p>3년 CSV를 올린 뒤 터미널에서 학습합니다. 업로드만으로 학습되지는 않습니다.</p><input id="file" type="file" accept=".csv"><button id="upload">업로드</button><pre id="uploadResult">semiconductor_etch_timeseries_3years.csv</pre></section>
+<section><h2>2. 추론 요청</h2><p>동일 장비의 최근 20회 센서 기록을 오래된 순서로 입력합니다.</p><button id="example">예시 불러오기</button><textarea id="request" aria-label="예측 요청 JSON"></textarea><button id="predict">다음 공정 예측</button><pre id="result">예시를 불러오고 예측을 실행하세요.</pre></section>
+<section><h2>3. 팀 실습 실행 명령</h2><pre>python -m semiconductor.train
+python -m semiconductor.train --register
+# MODEL_SOURCE=mlflow로 서버를 다시 실행하면 Production 버전 사용</pre><p>Day 3 자동 재학습은 후속 실습 범위입니다.</p></section>
+<script>
+async function api(url,options){const r=await fetch(url,options);const data=await r.json();if(!r.ok)throw Error(JSON.stringify(data));return data}
+function show(id,data){document.getElementById(id).textContent=JSON.stringify(data,null,2)}
+async function health(){try{show('health',await api('/health'))}catch(e){show('health',e.message)}}
+async function act(button,output,fn){button.disabled=true;try{await fn()}catch(e){show(output,e.message)}finally{button.disabled=false}}
+document.getElementById('upload').onclick=function(){act(this,'uploadResult',async()=>{const f=document.getElementById('file').files[0];if(!f)throw Error('CSV를 선택하세요');const body=new FormData();body.append('file',f);show('uploadResult',await api('/data/upload',{method:'POST',body}))})};
+document.getElementById('example').onclick=function(){act(this,'result',async()=>{document.getElementById('request').value=JSON.stringify(await api('/data/example'),null,2)})};
+document.getElementById('predict').onclick=function(){act(this,'result',async()=>{const body=JSON.stringify(JSON.parse(document.getElementById('request').value));show('result',await api('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body}));await health()})};health();
+</script></html>

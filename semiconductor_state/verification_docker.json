@@ -1,0 +1,398 @@
+{
+  "health_before": {
+    "status": 200,
+    "seconds": 0.023872000005212612,
+    "body": {
+      "status": "ok",
+      "model_loaded": true,
+      "loading_mode": "eager",
+      "model_source": "mlflow",
+      "model_version": "production-v1",
+      "startup_seconds": 2.0960170429999607,
+      "model_load_seconds": 2.0845818349999945
+    }
+  },
+  "upload": {
+    "status": 200,
+    "body": {
+      "filename": "etch_3eab03e3d1384891abc991191697936a.csv",
+      "rows": 263040,
+      "equipment": {
+        "ETCH-01": 52608,
+        "ETCH-02": 52608,
+        "ETCH-03": 52608,
+        "ETCH-04": 52608,
+        "ETCH-05": 52608
+      },
+      "start": "2023-01-01T00:00:00",
+      "end": "2025-12-31T23:30:00",
+      "interval_minutes": 30,
+      "features": [
+        "ambient_temperature_c",
+        "ambient_humidity_pct",
+        "cooling_water_temperature_c",
+        "chamber_temperature_c",
+        "chamber_pressure_mtorr",
+        "cf4_flow_sccm",
+        "o2_flow_sccm",
+        "rf_power_w",
+        "process_time_sec",
+        "vibration_mm_s",
+        "particle_count",
+        "usage_count"
+      ],
+      "note": "Upload stores data; train separately."
+    }
+  },
+  "first_predict": {
+    "status": 200,
+    "seconds": 0.09630770899821073,
+    "body": {
+      "equipment_id": "ETCH-01",
+      "target_timestamp": "2023-01-01T10:00:00",
+      "predicted_anomaly_score": 31.466,
+      "risk_level": "NORMAL",
+      "defect_label": 0,
+      "model_version": "production-v1",
+      "model_source": "mlflow",
+      "latency_ms": 84.78,
+      "simulation": true
+    }
+  },
+  "second_predict": {
+    "status": 200,
+    "seconds": 0.03247212499991292,
+    "body": {
+      "equipment_id": "ETCH-01",
+      "target_timestamp": "2023-01-01T10:00:00",
+      "predicted_anomaly_score": 31.466,
+      "risk_level": "NORMAL",
+      "defect_label": 0,
+      "model_version": "production-v1",
+      "model_source": "mlflow",
+      "latency_ms": 30.18,
+      "simulation": true
+    }
+  },
+  "invalid_19_points": {
+    "status": 422,
+    "seconds": 0.004534833999059629,
+    "body": {
+      "detail": [
+        {
+          "type": "too_short",
+          "loc": [
+            "body",
+            "sequence"
+          ],
+          "msg": "List should have at least 20 items after validation, not 19",
+          "input": [
+            {
+              "timestamp": "2023-01-01T00:00:00",
+              "ambient_temperature_c": 0.05000000074505806,
+              "ambient_humidity_pct": 46.750999450683594,
+              "cooling_water_temperature_c": 14.505999565124512,
+              "chamber_temperature_c": 59.45100021362305,
+              "chamber_pressure_mtorr": 10.298999786376953,
+              "cf4_flow_sccm": 100.31600189208984,
+              "o2_flow_sccm": 20.01300048828125,
+              "rf_power_w": 495.7250061035156,
+              "process_time_sec": 60.071998596191406,
+              "vibration_mm_s": 0.17479999363422394,
+              "particle_count": 4.0,
+              "usage_count": 1.0
+            },
+            {
+              "timestamp": "2023-01-01T00:30:00",
+              "ambient_temperature_c": 0.12399999797344208,
+              "ambient_humidity_pct": 49.0,
+              "cooling_water_temperature_c": 13.319000244140625,
+              "chamber_temperature_c": 59.19499969482422,
+              "chamber_pressure_mtorr": 9.864999771118164,
+              "cf4_flow_sccm": 100.2699966430664,
+              "o2_flow_sccm": 20.000999450683594,
+              "rf_power_w": 501.64898681640625,
+              "process_time_sec": 60.15800094604492,
+              "vibration_mm_s": 0.19900000095367432,
+              "particle_count": 11.0,
+              "usage_count": 2.0
+            },
+            {
+              "timestamp": "2023-01-01T01:00:00",
+              "ambient_temperature_c": 1.4709999561309814,
+              "ambient_humidity_pct": 50.67100143432617,
+              "cooling_water_temperature_c": 14.175000190734863,
+              "chamber_temperature_c": 59.8650016784668,
+              "chamber_pressure_mtorr": 10.163000106811523,
+              "cf4_flow_sccm": 99.62999725341797,
+              "o2_flow_sccm": 20.114999771118164,
+              "rf_power_w": 501.0090026855469,
+              "process_time_sec": 58.78499984741211,
+              "vibration_mm_s": 0.21369999647140503,
+              "particle_count": 3.0,
+              "usage_count": 3.0
+            },
+            {
+              "timestamp": "2023-01-01T01:30:00",
+              "ambient_temperature_c": 0.4560000002384186,
+              "ambient_humidity_pct": 46.19900131225586,
+              "cooling_water_temperature_c": 13.595000267028809,
+              "chamber_temperature_c": 59.56999969482422,
+              "chamber_pressure_mtorr": 9.83899974822998,
+              "cf4_flow_sccm": 98.875,
+              "o2_flow_sccm": 20.309999465942383,
+              "rf_power_w": 499.3840026855469,
+              "process_time_sec": 59.96699905395508,
+              "vibration_mm_s": 0.1876000016927719,
+              "particle_count": 11.0,
+              "usage_count": 4.0
+            },
+            {
+              "timestamp": "2023-01-01T02:00:00",
+              "ambient_temperature_c": -0.21299999952316284,
+              "ambient_humidity_pct": 48.21099853515625,
+              "cooling_water_temperature_c": 13.838000297546387,
+              "chamber_temperature_c": 59.71799850463867,
+              "chamber_pressure_mtorr": 9.864999771118164,
+              "cf4_flow_sccm": 99.7239990234375,
+              "o2_flow_sccm": 20.04400062561035,
+              "rf_power_w": 499.43798828125,
+              "process_time_sec": 60.0359992980957,
+              "vibration_mm_s": 0.13099999725818634,
+              "particle_count": 7.0,
+              "usage_count": 5.0
+            },
+            {
+              "timestamp": "2023-01-01T02:30:00",
+              "ambient_temperature_c": -0.8479999899864197,
+              "ambient_humidity_pct": 48.84600067138672,
+              "cooling_water_temperature_c": 14.39900016784668,
+              "chamber_temperature_c": 60.2140007019043,
+              "chamber_pressure_mtorr": 10.182999610900879,
+              "cf4_flow_sccm": 99.11799621582031,
+              "o2_flow_sccm": 19.433000564575195,
+              "rf_power_w": 502.3160095214844,
+              "process_time_sec": 60.46500015258789,
+              "vibration_mm_s": 0.13339999318122864,
+              "particle_count": 8.0,
+              "usage_count": 6.0
+            },
+            {
+              "timestamp": "2023-01-01T03:00:00",
+              "ambient_temperature_c": -0.9160000085830688,
+              "ambient_humidity_pct": 40.81100082397461,
+              "cooling_water_temperature_c": 13.390999794006348,
+              "chamber_temperature_c": 59.250999450683594,
+              "chamber_pressure_mtorr": 9.871999740600586,
+              "cf4_flow_sccm": 98.15699768066406,
+              "o2_flow_sccm": 19.792999267578125,
+              "rf_power_w": 503.31298828125,
+              "process_time_sec": 59.82099914550781,
+              "vibration_mm_s": 0.1858000010251999,
+              "particle_count": 5.0,
+              "usage_count": 7.0
+            },
+            {
+              "timestamp": "2023-01-01T03:30:00",
+              "ambient_temperature_c": 0.46700000762939453,
+              "ambient_humidity_pct": 50.577999114990234,
+              "cooling_water_temperature_c": 13.888999938964844,
+              "chamber_temperature_c": 59.67399978637695,
+              "chamber_pressure_mtorr": 10.17199993133545,
+              "cf4_flow_sccm": 99.7229995727539,
+              "o2_flow_sccm": 20.263999938964844,
+              "rf_power_w": 497.010986328125,
+              "process_time_sec": 60.5629997253418,
+              "vibration_mm_s": 0.20630000531673431,
+              "particle_count": 11.0,
+              "usage_count": 8.0
+            },
+            {
+              "timestamp": "2023-01-01T04:00:00",
+              "ambient_temperature_c": 2.2070000171661377,
+              "ambient_humidity_pct": 41.16299819946289,
+              "cooling_water_temperature_c": 13.491000175476074,
+              "chamber_temperature_c": 59.45199966430664,
+              "chamber_pressure_mtorr": 10.13700008392334,
+              "cf4_flow_sccm": 101.40499877929688,
+              "o2_flow_sccm": 19.94700050354004,
+              "rf_power_w": 498.7699890136719,
+              "process_time_sec": 60.26100158691406,
+              "vibration_mm_s": 0.17810000479221344,
+              "particle_count": 2.0,
+              "usage_count": 9.0
+            },
+            {
+              "timestamp": "2023-01-01T04:30:00",
+              "ambient_temperature_c": 0.07599999755620956,
+              "ambient_humidity_pct": 48.268001556396484,
+              "cooling_water_temperature_c": 14.4350004196167,
+              "chamber_temperature_c": 59.25199890136719,
+              "chamber_pressure_mtorr": 10.027999877929688,
+              "cf4_flow_sccm": 100.8030014038086,
+              "o2_flow_sccm": 20.548999786376953,
+              "rf_power_w": 495.5150146484375,
+              "process_time_sec": 60.27799987792969,
+              "vibration_mm_s": 0.15889999270439148,
+              "particle_count": 6.0,
+              "usage_count": 10.0
+            },
+            {
+              "timestamp": "2023-01-01T05:00:00",
+              "ambient_temperature_c": 1.5130000114440918,
+              "ambient_humidity_pct": 42.17399978637695,
+              "cooling_water_temperature_c": 14.027999877929688,
+              "chamber_temperature_c": 59.41600036621094,
+              "chamber_pressure_mtorr": 9.906999588012695,
+              "cf4_flow_sccm": 99.87699890136719,
+              "o2_flow_sccm": 19.972000122070312,
+              "rf_power_w": 500.43798828125,
+              "process_time_sec": 60.428001403808594,
+              "vibration_mm_s": 0.16899999976158142,
+              "particle_count": 11.0,
+              "usage_count": 11.0
+            },
+            {
+              "timestamp": "2023-01-01T05:30:00",
+              "ambient_temperature_c": 2.1019999980926514,
+              "ambient_humidity_pct": 38.749000549316406,
+              "cooling_water_temperature_c": 13.918999671936035,
+              "chamber_temperature_c": 59.53900146484375,
+              "chamber_pressure_mtorr": 9.850000381469727,
+              "cf4_flow_sccm": 99.68299865722656,
+              "o2_flow_sccm": 19.895000457763672,
+              "rf_power_w": 497.58599853515625,
+              "process_time_sec": 59.42599868774414,
+              "vibration_mm_s": 0.210099995136261,
+              "particle_count": 12.0,
+              "usage_count": 12.0
+            },
+            {
+              "timestamp": "2023-01-01T06:00:00",
+              "ambient_temperature_c": 0.9660000205039978,
+              "ambient_humidity_pct": 42.935001373291016,
+              "cooling_water_temperature_c": 14.060999870300293,
+              "chamber_temperature_c": 59.57500076293945,
+              "chamber_pressure_mtorr": 10.211000442504883,
+              "cf4_flow_sccm": 99.52899932861328,
+              "o2_flow_sccm": 19.957000732421875,
+              "rf_power_w": 500.5669860839844,
+              "process_time_sec": 60.231998443603516,
+              "vibration_mm_s": 0.2011999934911728,
+              "particle_count": 2.0,
+              "usage_count": 13.0
+            },
+            {
+              "timestamp": "2023-01-01T06:30:00",
+              "ambient_temperature_c": 2.5,
+              "ambient_humidity_pct": 43.04100036621094,
+              "cooling_water_temperature_c": 14.232999801635742,
+              "chamber_temperature_c": 59.569000244140625,
+              "chamber_pressure_mtorr": 10.095999717712402,
+              "cf4_flow_sccm": 99.36900329589844,
+              "o2_flow_sccm": 19.490999221801758,
+              "rf_power_w": 498.8160095214844,
+              "process_time_sec": 60.89500045776367,
+              "vibration_mm_s": 0.18410000205039978,
+              "particle_count": 12.0,
+              "usage_count": 14.0
+            },
+            {
+              "timestamp": "2023-01-01T07:00:00",
+              "ambient_temperature_c": 1.6009999513626099,
+              "ambient_humidity_pct": 48.5890007019043,
+              "cooling_water_temperature_c": 14.244000434875488,
+              "chamber_temperature_c": 59.95199966430664,
+              "chamber_pressure_mtorr": 10.151000022888184,
+              "cf4_flow_sccm": 100.16200256347656,
+              "o2_flow_sccm": 20.149999618530273,
+              "rf_power_w": 502.031005859375,
+              "process_time_sec": 60.54999923706055,
+              "vibration_mm_s": 0.21089999377727509,
+              "particle_count": 9.0,
+              "usage_count": 15.0
+            },
+            {
+              "timestamp": "2023-01-01T07:30:00",
+              "ambient_temperature_c": 1.7280000448226929,
+              "ambient_humidity_pct": 46.89899826049805,
+              "cooling_water_temperature_c": 14.616999626159668,
+              "chamber_temperature_c": 59.92499923706055,
+              "chamber_pressure_mtorr": 9.75,
+              "cf4_flow_sccm": 100.08000183105469,
+              "o2_flow_sccm": 19.496999740600586,
+              "rf_power_w": 498.2099914550781,
+              "process_time_sec": 60.59000015258789,
+              "vibration_mm_s": 0.18649999797344208,
+              "particle_count": 5.0,
+              "usage_count": 16.0
+            },
+            {
+              "timestamp": "2023-01-01T08:00:00",
+              "ambient_temperature_c": 2.4560000896453857,
+              "ambient_humidity_pct": 45.15599822998047,
+              "cooling_water_temperature_c": 14.331999778747559,
+              "chamber_temperature_c": 60.17900085449219,
+              "chamber_pressure_mtorr": 9.779999732971191,
+              "cf4_flow_sccm": 99.41400146484375,
+              "o2_flow_sccm": 19.76799964904785,
+              "rf_power_w": 503.6629943847656,
+              "process_time_sec": 60.39699935913086,
+              "vibration_mm_s": 0.17339999973773956,
+              "particle_count": 7.0,
+              "usage_count": 17.0
+            },
+            {
+              "timestamp": "2023-01-01T08:30:00",
+              "ambient_temperature_c": 2.9140000343322754,
+              "ambient_humidity_pct": 44.525001525878906,
+              "cooling_water_temperature_c": 14.920999526977539,
+              "chamber_temperature_c": 59.479000091552734,
+              "chamber_pressure_mtorr": 10.395999908447266,
+              "cf4_flow_sccm": 100.60800170898438,
+              "o2_flow_sccm": 19.781999588012695,
+              "rf_power_w": 499.2510070800781,
+              "process_time_sec": 59.53799819946289,
+              "vibration_mm_s": 0.17730000615119934,
+              "particle_count": 1.0,
+              "usage_count": 18.0
+            },
+            {
+              "timestamp": "2023-01-01T09:00:00",
+              "ambient_temperature_c": 5.426000118255615,
+              "ambient_humidity_pct": 46.37200164794922,
+              "cooling_water_temperature_c": 14.616000175476074,
+              "chamber_temperature_c": 59.356998443603516,
+              "chamber_pressure_mtorr": 10.291000366210938,
+              "cf4_flow_sccm": 99.84200286865234,
+              "o2_flow_sccm": 20.155000686645508,
+              "rf_power_w": 501.75799560546875,
+              "process_time_sec": 59.75899887084961,
+              "vibration_mm_s": 0.18379999697208405,
+              "particle_count": 14.0,
+              "usage_count": 19.0
+            }
+          ],
+          "ctx": {
+            "field_type": "List",
+            "min_length": 20,
+            "actual_length": 19
+          }
+        }
+      ]
+    }
+  },
+  "health_after": {
+    "status": 200,
+    "seconds": 0.001335916000243742,
+    "body": {
+      "status": "ok",
+      "model_loaded": true,
+      "loading_mode": "eager",
+      "model_source": "mlflow",
+      "model_version": "production-v1",
+      "startup_seconds": 2.0960170429999607,
+      "model_load_seconds": 2.0845818349999945
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "features": [
+    "ambient_temperature_c",
+    "ambient_humidity_pct",
+    "cooling_water_temperature_c",
+    "chamber_temperature_c",
+    "chamber_pressure_mtorr",
+    "cf4_flow_sccm",
+    "o2_flow_sccm",
+    "rf_power_w",
+    "process_time_sec",
+    "vibration_mm_s",
+    "particle_count",
+    "usage_count"
+  ],
+  "sequence_length": 20,
+  "feature_min": [
+    -4.322999954223633,
+    27.27400016784668,
+    11.89900016784668,
+    56.97800064086914,
+    9.083000183105469,
+    94.93599700927734,
+    18.31399917602539,
+    464.1650085449219,
+    57.8489990234375,
+    0.09929999709129333,
+    0.0,
+    1.0
+  ],
+  "feature_max": [
+    33.31999969482422,
+    95.0,
+    26.020000457763672,
+    64.25499725341797,
+    13.255999565124512,
+    103.37899780273438,
+    21.01300048828125,
+    510.5249938964844,
+    64.56900024414062,
+    0.7283999919891357,
+    67.0,
+    2674.0
+  ],
+  "target_min": 0.0,
+  "target_max": 100.0
+}
