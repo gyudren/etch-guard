@@ -1,0 +1,13 @@
+services:
+  etchguard:
+    build: .
+    image: etchguard:3.0
+    ports:
+      - "127.0.0.1:${ETCH_PORT:-8000}:8000"
+    environment:
+      MODEL_SOURCE: mlflow
+      LOADING_MODE: eager
+    volumes:
+      - etchguard-logs:/app/logs   # aiops.log·예측 기록은 컨테이너 재생성 후에도 유지
+volumes:
+  etchguard-logs:
