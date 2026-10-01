@@ -12,3 +12,4 @@ semiconductor_state/uploads/
 semiconductor_state/*.tmp
 semiconductor_state/bundles/*
 !semiconductor_state/bundles/20261001T002500-c775a1/
+semiconductor_state/bundles/*/registration.json

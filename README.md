@@ -83,3 +83,67 @@ evidence/ 실행 로그·측정 JSON         docs/  기획서·스크린샷
 | 드리프트 | 12시간 윈도우 RMSE > 5.0 이 3회 연속 | 2025 정상 구간 오탐 0건, 탐지 지연 36시간 |
 | 재학습 | Production 가중치 warm start, 최근 7일 전 장비, lr 1e-4 × 10 epoch, 스케일러 재사용 | scratch 대비 정상셋 RMSE 6.43 → 3.39 |
 | 실패 시 | Production 유지([FAIL] 로그), 수동 롤백 CLI | |
+
+## 로컬 실행 가이드 (localhost)
+
+저장소에 학습된 기본 모델(base 번들)과 데이터 CSV가 들어 있어서, 따로 학습하지 않아도 바로 띄울 수 있습니다. Python 3.11을 권장합니다(TensorFlow 포함, 설치에 몇 분 걸립니다).
+
+### 1. 환경 준비 (처음 한 번)
+
+```bash
+git clone https://github.com/gyudren/etch-guard.git
+cd etch-guard
+python3.11 -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 2. 기본 모델을 Production으로 등록 (처음 한 번, 몇 초)
+
+```bash
+python -m semiconductor.train --register --bundle semiconductor_state/bundles/20261001T002500-c775a1
+python -m semiconductor.registry list    # "v1 ... ← Production" 이 보이면 완료
+```
+
+처음부터 다시 학습하려면 `python -m semiconductor.train --register`를 실행합니다(1~2분).
+
+### 3. 서버 실행
+
+```bash
+MODEL_SOURCE=mlflow LOADING_MODE=eager python -m uvicorn semiconductor.app:app --port 8000
+```
+
+Windows PowerShell에서는 `$env:MODEL_SOURCE="mlflow"; $env:LOADING_MODE="eager"; python -m uvicorn semiconductor.app:app --port 8000`을 씁니다.
+등록 없이 화면만 빨리 보려면 `python -m uvicorn semiconductor.app:app --port 8000`(로컬 번들, Lazy)으로도 뜹니다.
+
+| 화면 | 주소 |
+|---|---|
+| 운영 콘솔 | http://localhost:8000/ |
+| Swagger API 문서 | http://localhost:8000/docs |
+| 모니터링 상태 | http://localhost:8000/monitoring/status |
+
+`curl localhost:8000/health` 응답에 `"model_version":"production-v1"`이 보이면 정상입니다.
+
+### 4. 시연 순서
+
+1. 콘솔 **02** 카드에서 `예시 불러오기` → `예측`: 30분 뒤 이상 점수와 위험 등급이 나옵니다.
+2. 콘솔 **03** 카드에서 `① 정상` → `② 계절 변화` → `③ 드리프트 주입` → `④ 재학습 후 다음 주` 순서로 누릅니다. 다른 터미널에서 `python scripts/simulate_drift.py`를 실행해도 같습니다.
+3. 콘솔 **04** 재학습 로그에서 `[WARN] drift detected` → `[INFO] retrain triggered` → `[OK] ... production-v1 → production-v2` 순서를 확인합니다.
+
+### 5. Docker로 실행 (선택)
+
+```bash
+docker compose up --build -d     # 처음 빌드는 몇 분 걸립니다 (빌드 중에 학습·등록까지 진행)
+```
+
+http://localhost:8000 으로 접속합니다. 8000 포트를 이미 쓰고 있으면 `ETCH_PORT=8020 docker compose up -d`로 띄우고 http://localhost:8020 으로 접속합니다.
+
+### 6. 자주 겪는 문제
+
+| 증상 | 해결 |
+|---|---|
+| `address already in use` (포트 8000) | 이미 떠 있는 서버를 종료(`lsof -i :8000`으로 PID 확인)하거나 `--port 8010`처럼 다른 포트 사용 |
+| `/predict`가 503 (mlflow 모드) | Production 모델이 없는 상태입니다. 2단계 등록을 실행 |
+| 코드를 고쳤는데 화면이 그대로 | 서버를 재시작합니다(개발 중에는 `--reload` 옵션 사용) |
+| 시연 후 처음 상태(v1)로 되돌리기 | `python -m semiconductor.registry rollback --version 1` 후 서버 재시작 |
+| 시연 후 `semiconductor_state/local.json`이 변경됨 | 재학습 결과가 기록된 것입니다. 커밋하지 말고 `git checkout semiconductor_state/local.json`으로 되돌립니다 |
