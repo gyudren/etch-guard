@@ -175,5 +175,61 @@ class PipelineTests(unittest.TestCase):
             self.assertIn("aiops.log", [f["name"] for f in c.get("/logs").json()])
 
 
+class HighAlertTests(unittest.TestCase):
+    def test_alert_on_entering_high_with_cooldown_and_repeat(self):
+        from .monitoring.alerts import HighAlerts
+        a = HighAlerts(cooldown=600, repeat=7200)
+        fire = lambda score, level, t: a.observe("ETCH-01", score, level, "2025-07-11T09:00:00", "점검", now=t)
+        self.assertIsNone(fire(50, "WARNING", 0))
+        self.assertIsNotNone(fire(80, "HIGH", 10))       # 새로 HIGH → 경보
+        self.assertIsNone(fire(81, "HIGH", 1800))        # HIGH 지속, 재알림 주기(2h) 전 → 조용
+        self.assertIsNone(fire(50, "WARNING", 1900))
+        self.assertIsNotNone(fire(80, "HIGH", 1950))     # 다시 HIGH 진입, 직전 경보 후 10분 지남 → 경보
+        self.assertIsNone(fire(50, "WARNING", 2000))
+        self.assertIsNone(fire(80, "HIGH", 2100))        # 진입했지만 10분 쿨다운 안 → 억제
+        self.assertIsNotNone(fire(80, "HIGH", 9400))     # HIGH가 2시간 넘게 이어짐 → 재알림
+        self.assertEqual([r["kind"] for r in a.recent], ["new", "new", "repeat"])
+
+
+class DemoSeedTests(unittest.TestCase):
+    def test_seed_fills_dashboard_state_from_real_predictions(self):
+        from datetime import datetime, timedelta
+        import numpy as np
+        from .app import LiveStore
+        from .demo_seed import seed
+
+        class FakeModel:  # 확정 점수 + 1점 오차로 예측 → 윈도우 RMSE 1.0, 드리프트 없음
+            version, profile = "fake-v1", None
+
+            def __init__(self, y):
+                self.y, self.calls = y, []
+
+            def predict(self, x):
+                self.calls.append(len(x))
+                return self.y[:len(x)] + 1.0
+
+        t0 = datetime(2025, 7, 1)
+        times = [t0 + timedelta(minutes=30 * i) for i in range(24 * 2 * 12)]  # 12일
+        y = np.where(np.arange(len(times)) % 5 == 0, 80.0, 50.0)            # 20% HIGH
+        series = {"ETCH-01": {"time": times, "x": np.ones((len(times), 12)), "y": y}}
+        target = np.array([y[i] for i, t in enumerate(times) if t <= datetime(2025, 7, 11, 9, 0)][-240:])
+        model, monitor, live, last_batch = FakeModel(target), DriftMonitor(), LiveStore(_TMP / "seedlogs"), {}
+        with patch.dict(os.environ, {"DEMO_SEED_DATE": "2025-07-11", "DEMO_SEED_CYCLES": "240"}):
+            info = seed(model, series, monitor, live, last_batch, now=datetime(2026, 10, 2, 9, 10))
+
+        self.assertEqual(model.calls, [240])
+        self.assertEqual(info["reference"], "2025-07-11T09:00:00")
+        self.assertEqual(len(monitor.history["ETCH-01"]), 10)                 # 240 / 24 = 윈도우 10개
+        self.assertEqual(last_batch["ETCH-01"]["status"], "ok")
+        self.assertAlmostEqual(last_batch["ETCH-01"]["latest_window_rmse"], 1.0)
+        # 오늘 00:00~09:00 = 기준일 사이클 19개(00:00, 00:30, …, 09:00), 그 뒤 시간대는 비어 있어야 한다
+        self.assertEqual(sum(live.hour_calls), 19)
+        self.assertEqual(live.hour_calls[9], 1)
+        self.assertEqual(sum(live.hour_calls[10:]), 0)
+        self.assertEqual(len(live.levels["ETCH-01"]), 240)
+        self.assertEqual(list(live.levels["ETCH-01"]).count("HIGH"), 48)          # 실제 등급 그대로 (240의 20%)
+        self.assertIn("action", live.latest["ETCH-01"])
+
+
 if __name__ == "__main__":
     unittest.main()

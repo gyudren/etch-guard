@@ -65,3 +65,8 @@ def latest_data():
 
 def risk_level(score):
     return "HIGH" if score >= HIGH_SCORE else "WARNING" if score >= WARNING_SCORE else "NORMAL"
+
+
+# 위험 등급별 점검 권고 (/predict 응답·대시보드 리본 공통)
+RECOMMENDED_ACTION = {"HIGH": "장비 점검 권고 (다음 lot 투입 전 확인)",
+                      "WARNING": "추세 관찰 강화", "NORMAL": "정상 운전"}

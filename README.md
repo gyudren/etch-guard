@@ -23,7 +23,7 @@ MODEL_SOURCE=mlflow LOADING_MODE=eager uvicorn semiconductor.app:app --port 8000
 python scripts/simulate_drift.py                              # (다른 터미널) 정상 → 계절 → 드리프트 → 재학습 후
 ```
 
-대시보드 http://localhost:8000/ · Swagger http://localhost:8000/docs
+실시간 대시보드 http://localhost:8000/ · 운영 콘솔 http://localhost:8000/console · Swagger http://localhost:8000/docs
 
 | 단계 | 명령 |
 |---|---|
@@ -52,7 +52,8 @@ semiconductor/
     data_drift.py      같은 달 기준 PSI → 원인 후보 센서 순위(경보 아님)
   registry.py          버전 목록·롤백 CLI
   verify.py            HTTP 스모크·Lazy/Eager 측정
-  static/index.html    운영 콘솔(업로드·예측·드리프트 시뮬레이션·재학습 로그)
+  static/dashboard.html 실시간 대시보드(`/`) · Real-time 스위치로 정상/드리프트 트래픽 생성
+  static/index.html    운영 콘솔(`/console`: 업로드·예측·드리프트 시뮬레이션·재학습 로그)
   test_pipeline.py     Day1~3 통합 테스트 (임시 상태·임시 Registry)
 scripts/  simulate_drift.py · analyze_drift_policy.py · compare_retrain_strategy.py · capture_api_screens.py · generate_semiconductor_etch_data.py
 evidence/ 실행 로그·측정 JSON         docs/  기획서·스크린샷
@@ -62,12 +63,15 @@ evidence/ 실행 로그·측정 JSON         docs/  기획서·스크린샷
 
 | Method | URL | 역할 |
 |---|---|---|
-| GET | `/` | 운영 콘솔 |
+| GET | `/` | 실시간 대시보드 (JENNIFER 스타일: TPS·X-view·윈도우 RMSE·시간대별 예측·EVENT) |
+| GET | `/console` | 운영 콘솔 (업로드·예측·드리프트 시뮬레이션·재학습 로그) |
 | GET | `/health` | 상태·모델 버전·Lazy/Eager·로딩 시간 |
 | GET | `/ready` | 모델 로드 시 200, 미로드 503 |
-| POST | `/predict` | `{equipment_id, sequence[20]}` → 이상 점수·위험 등급·권고·모델 버전 |
+| POST | `/predict` | `{equipment_id, sequence[20]}` → 이상 점수·위험 등급·권고·점검 우선순위(top_deviations, z-score 상위 3 센서)·모델 버전 |
 | POST | `/predict/batch-test` | `{equipment_id, records[≥21, anomaly_score 포함]}` → 예측·드리프트 판정·원인 센서 |
 | GET | `/monitoring/status` | 윈도우 RMSE·판정, 재학습 이력, 엔드포인트별 p50/p95·에러율 |
+| GET | `/monitoring/dashboard` | 대시보드 스냅샷: 최근 3분 요청·지연, 오늘 시간대별 예측·HIGH, 장비 상태, 이벤트 |
+| GET | `/monitoring/timeseries?minutes=60` | 1초 간격 운영 지표 시계열(`logs/metrics.jsonl`), 최근 6시간 |
 | POST | `/data/upload` | CSV 검증·저장 (400: 형식 오류, 413: 64MiB 초과) |
 | GET | `/data/status` · `/data/example` · `/data/batch` | 데이터 현황 · 예측 예시 · 시뮬레이션 배치 |
 | GET | `/logs` · `/logs/{name}?tail=` | aiops.log·predictions.jsonl 조회 (읽기 전용) |
@@ -118,13 +122,34 @@ Windows PowerShell에서는 `$env:MODEL_SOURCE="mlflow"; $env:LOADING_MODE="eage
 
 | 화면 | 주소 |
 |---|---|
-| 운영 콘솔 | http://localhost:8000/ |
+| 실시간 대시보드 | http://localhost:8000/ |
+| 운영 콘솔 | http://localhost:8000/console |
 | Swagger API 문서 | http://localhost:8000/docs |
 | 모니터링 상태 | http://localhost:8000/monitoring/status |
 
 `curl localhost:8000/health` 응답에 `"model_version":"production-v1"`이 보이면 정상입니다.
 
 ### 4. 시연 순서
+
+대시보드(`/`)에서는 상단 **Real-time** 스위치를 `정상 트래픽`으로 켜면 브라우저가 실제 API를 계속 호출해 TPS·X-view·등급 분포가 움직이고, `드리프트 트래픽`으로 바꾸면 1~2분 안에 드리프트 감지 → 재학습 → 버전 교체가 EVENT 패널과 X-view 마커에 나타납니다.
+
+**발표용 데모 데이터.** 서버를 막 띄우면 대시보드가 비어 있습니다. `DEMO_SEED=1`을 붙여 띄우면 기동 직후 실제 CSV의 정상 구간(기본 2025-07-11 기준 최근 5일, 장비 5대)을 Production 모델로 예측해 윈도우 RMSE 추이, 등급 분포, 장비 타일, 리본, 오늘 시간대별 예측·HIGH 차트를 채웁니다. 값은 모두 실제 예측과 실제 확정 점수이고, 기준일의 사이클을 오늘 같은 시각에 대응시킨 것만 다릅니다. 메모리에만 채우므로 재기동하거나 옵션을 빼면 원래대로이고, `predictions.jsonl`에는 쓰지 않습니다. 시연 로그를 개발 로그와 분리하려면 `AIOPS_LOG_DIR`도 바꿉니다. `/?rt=normal`로 열면 정상 트래픽이 바로 켜집니다.
+
+```bash
+DEMO_SEED=1 AIOPS_LOG_DIR=logs/demo MODEL_SOURCE=mlflow LOADING_MODE=eager python -m uvicorn semiconductor.app:app --port 8000
+```
+
+대시보드는 두 화면입니다. `/?view=user`(설비 엔지니어: 다음 공정 위험 리본, 점검 권고·HIGH 경보 표, 예측 vs 확정 점수)와 `/?view=ops`(AIOps: 운영 목표 SLO, 윈도우 RMSE, 모델 버전·게이트 이력, EVENT)이고 상단 버튼으로도 바꿉니다. 장비가 새로 HIGH가 되면 `[ALERT]` 경보가 aiops.log·화면 알림·웹훅(`ALERT_WEBHOOK_URL`)으로 나가며, 같은 장비는 `ALERT_COOLDOWN_SEC`(기본 600초) 안에 다시 울리지 않고 HIGH가 이어지면 `ALERT_REPEAT_SEC`(기본 7200초)마다 재알림합니다. 모델 이력은 `GET /monitoring/models`(Registry 버전별 게이트 결과·검증 지표)입니다.
+
+드리프트 시연을 한 번 하면 재학습된 새 버전이 Production이 되어 같은 드리프트가 다시 잡히지 않습니다. 다시 시연하려면 Production을 이전 버전으로 되돌린 뒤 서버를 재시작합니다(새 버전 기록은 Registry에 남습니다).
+
+```bash
+python -c "import mlflow; from mlflow.tracking import MlflowClient; from semiconductor.config import tracking_uri, MODEL_NAME, ALIAS; mlflow.set_tracking_uri(tracking_uri()); MlflowClient().set_registered_model_alias(MODEL_NAME, ALIAS, '7')"
+```
+
+기준일과 길이는 `DEMO_SEED_DATE`(기본 2025-07-11, 드리프트 이전이어야 함), `DEMO_SEED_CYCLES`(기본 240 = 12h 윈도우 10개)로 바꿀 수 있습니다. Docker는 `DEMO_SEED=1 docker compose up -d`입니다.
+
+운영 콘솔(`/console`)에서 단계별로 보려면:
 
 1. 콘솔 **02** 카드에서 `예시 불러오기` → `예측`: 30분 뒤 이상 점수와 위험 등급이 나옵니다.
 2. 콘솔 **03** 카드에서 `① 정상` → `② 계절 변화` → `③ 드리프트 주입` → `④ 재학습 후 다음 주` 순서로 누릅니다. 다른 터미널에서 `python scripts/simulate_drift.py`를 실행해도 같습니다.

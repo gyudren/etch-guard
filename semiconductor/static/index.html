@@ -98,7 +98,7 @@ $('upload').onclick=function(){busy(this,async()=>{const f=$('file').files[0];if
 $('status').onclick=function(){busy(this,async()=>show('uploadResult',await api('/data/status')),'uploadResult')};
 $('example').onclick=function(){busy(this,async()=>{$('request').value=JSON.stringify(await api('/data/example'),null,2)},'request')};
 $('predict').onclick=function(){busy(this,async()=>{const r=await api('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(JSON.parse($('request').value))});
-  $('score').textContent=r.predicted_anomaly_score.toFixed(1);$('level').textContent=r.risk_level;$('level').className='badge '+r.risk_level;$('action').textContent=`${r.recommended_action} · ${r.model_version} · ${r.latency_ms} ms`;refresh()},'action')};
+  $('score').textContent=r.predicted_anomaly_score.toFixed(1);$('level').textContent=r.risk_level;$('level').className='badge '+r.risk_level;$('action').textContent=`${r.recommended_action} · ${r.model_version} · ${r.latency_ms} ms`+((r.top_deviations||[]).length?` · 점검 우선순위: ${r.top_deviations.map(x=>`${x.sensor} ${x.z>0?'+':''}${x.z}σ`).join(', ')}`:'');refresh()},'action')};
 const EQ=['ETCH-01','ETCH-02','ETCH-03','ETCH-04','ETCH-05'];
 function renderSim(m){const rows=Object.entries(m.last_batch||{});if(!rows.length)return;const need=m.drift.policy.consecutive;
   $('sim').innerHTML=rows.map(([eq,b])=>`<tr><td>${eq}</td><td>${b.latest_window_rmse??'—'}</td><td>${b.consecutive_over}/${need}</td><td><span class="badge ${b.status}">${b.status}</span></td><td style="color:var(--muted)">${(b.top_sensors||[]).map(s=>`${s.sensor} ×${s.ratio}`).join(', ')}</td><td>${b.model_version}</td></tr>`).join('')}

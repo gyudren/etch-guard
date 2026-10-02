@@ -71,3 +71,25 @@ def diagnose(profile, reference_timestamp, raw_rows):
            for j in order[:3]]
     return {"available": True, "reference": f"2023~2024 같은 달({month}월)",
             "top_sensors": top, "shifted": [t["sensor"] for t in top if t["ratio"] >= SHIFT_RATIO]}
+
+
+def deviation_rank(profile, reference_timestamp, raw_rows, top=3):
+    """단건 예측용 센서 점검 우선순위(z-score).
+
+    PSI(diagnose)는 분포끼리 비교하는 통계라 96행 이상의 배치가 필요하다. /predict의 입력 창(20행)으로는
+    '평소와 다른 센서'를 가리키기 위해 창 평균이 같은 달 기준 중앙값에서 몇 σ 벗어났는지를 쓴다.
+    σ는 기준 프로파일의 10분위 경계 P10~P90 폭(정규분포에서 2.563σ)으로 추정해 번들 재등록 없이 계산한다.
+    반환: |z| 내림차순 상위 top개 [{"sensor", "z", "direction"}]. 프로파일이 없으면 [].
+    """
+    if profile is None or len(raw_rows) == 0:
+        return []
+    ref = profile["months"].get(str(reference_timestamp.month))
+    if ref is None:
+        return []
+    edges = np.array(ref["edges"], dtype="float64")            # (센서, 9) = P10 … P90
+    median, scale = edges[:, 4], np.maximum((edges[:, 8] - edges[:, 0]) / 2.563, 1e-6)
+    values = np.asarray(raw_rows, dtype="float64")[:, _IDX]
+    z = (values.mean(axis=0) - median) / scale
+    order = np.argsort(-np.abs(z))
+    return [{"sensor": DIAG_FEATURES[j], "z": round(float(z[j]), 2), "direction": "up" if z[j] > 0 else "down"}
+            for j in order[:top]]

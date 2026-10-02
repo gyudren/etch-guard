@@ -6,6 +6,8 @@ uvicorn semiconductor.app:app --port 8000
 import json
 import logging
 import os
+import re
+import threading
 import time
 import uuid
 from collections import deque
@@ -18,10 +20,13 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, ConfigDict, Field, create_model, model_validator
 
+from . import demo_seed
 from .config import (ROOT, STATE, LOG_DIR, FEATURES, SEQ_LEN, GATE_RMSE_MAX, GATE_RECALL_MIN,
-                     GATE_PRECISION_MIN, latest_data, risk_level)
+                     GATE_PRECISION_MIN, MODEL_NAME, ALIAS, RECOMMENDED_ACTION, latest_data, risk_level,
+                     tracking_uri)
 from .data import load_series, summary, validate_features, to_records
-from .monitoring.data_drift import diagnose
+from .monitoring.alerts import HighAlerts
+from .monitoring.data_drift import diagnose, deviation_rank
 from .monitoring.drift_detector import DriftMonitor, compute_rmse
 from .monitoring.retrain_trigger import RetrainController
 from .runtime import ModelManager
@@ -97,6 +102,216 @@ class OpsMetrics:
         return {"uptime_seconds": round(time.time() - self.started, 1), "endpoints": out}
 
 
+class LiveStore:
+    """실시간 대시보드용 메모리 버퍼.
+
+    - 요청: 최근 3,000건의 (시각, 경로, 상태 코드, 지연 ms) → TPS·응답시간·X-view
+    - 예측: 장비별 최근 500건의 위험 등급, 장비별 마지막 예측, 오늘 시간대별 예측·HIGH 건수(실시간 /predict만)
+    서버를 재시작하면 오늘 시간대별 집계만 predictions.jsonl에서 다시 채운다.
+    """
+    LEVELS = ("NORMAL", "WARNING", "HIGH")
+    EVENT_LINE = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(\w+)\] (.*)$")
+
+    def __init__(self, log_dir):
+        self.log_dir = log_dir
+        self.lock = threading.Lock()
+        self.requests = deque(maxlen=3000)
+        self.levels = {}          # eid -> deque(maxlen=500) of level
+        self.latest = {}          # eid -> 마지막 예측
+        self.series = {}          # eid -> deque(maxlen=96) of {t, p, a}: 예측 대 확정 점수 추이(48시간)
+        self.day = datetime.now().date()
+        self.hour_calls = [0] * 24
+        self.hour_high = [0] * 24
+        self._seed_today()
+
+    def _roll_day(self, now):
+        if now.date() != self.day:
+            self.day, self.hour_calls, self.hour_high = now.date(), [0] * 24, [0] * 24
+
+    def _seed_today(self):
+        path = self.log_dir / "predictions.jsonl"
+        if not path.exists():
+            return
+        prefix = self.day.isoformat()
+        with path.open(encoding="utf-8") as f:
+            for line in f:
+                if not line.startswith('{"logged_at": "' + prefix):
+                    continue
+                try:
+                    row = json.loads(line)
+                except ValueError:
+                    continue
+                if row.get("source", "predict") != "predict":  # 확정 점수 배치(batch-test)는 과거 재생이라 제외
+                    continue
+                hour = int(row["logged_at"][11:13])
+                self.hour_calls[hour] += 1
+                if row["predicted"] >= 70:
+                    self.hour_high[hour] += 1
+
+    def record_request(self, path, status, ms):
+        with self.lock:
+            self.requests.append((time.time(), path, status, ms))
+
+    def record_predictions(self, equipment_id, rows, source, extra=None, count_today=True):
+        """rows: [{"target_timestamp", "predicted", "actual"?}] 시간순. extra는 최신 예측에 덧붙일 진단 정보.
+        count_today=False면 오늘 시간대별 집계에는 넣지 않는다(데모 시드가 시간대를 따로 채울 때)."""
+        now = datetime.now()
+        with self.lock:
+            self._roll_day(now)
+            bucket = self.levels.setdefault(equipment_id, deque(maxlen=500))
+            trend = self.series.setdefault(equipment_id, deque(maxlen=96))
+            for row in rows:
+                level = risk_level(row["predicted"])
+                bucket.append(level)
+                trend.append({"t": row["target_timestamp"], "p": row["predicted"], "a": row.get("actual")})
+                if not count_today:
+                    continue
+                self.hour_calls[now.hour] += 1
+                if level == "HIGH":
+                    self.hour_high[now.hour] += 1
+            last = rows[-1]
+            self.latest[equipment_id] = {"at": now.isoformat(timespec="seconds"), "source": source,
+                                         "target_timestamp": last["target_timestamp"],
+                                         "score": last["predicted"], "level": risk_level(last["predicted"]),
+                                         "actual": last.get("actual"), **(extra or {})}
+
+    def add_today(self, hour_calls, hour_high):
+        """오늘 시간대별 예측·HIGH 건수에 더한다 (데모 시드용)."""
+        with self.lock:
+            self._roll_day(datetime.now())
+            for h in range(24):
+                self.hour_calls[h] += hour_calls[h]
+                self.hour_high[h] += hour_high[h]
+
+    def _events(self, limit=40):
+        path = self.log_dir / "aiops.log"
+        if not path.exists():
+            return []
+        with path.open(encoding="utf-8") as f:
+            lines = deque(f, maxlen=limit)
+        events = []
+        for line in lines:
+            m = self.EVENT_LINE.match(line.strip())
+            if not m:
+                continue
+            eq = re.search(r"equipment=(\S+)", m.group(3))
+            events.append({"at": m.group(1), "level": m.group(2), "message": m.group(3),
+                           "equipment_id": eq.group(1) if eq else None})
+        return events
+
+    @staticmethod
+    def _pct(values, q):
+        return round(float(np.percentile(values, q)), 1) if values else None
+
+    def snapshot(self, window_seconds=180):
+        now = time.time()
+        with self.lock:
+            self._roll_day(datetime.now())
+            requests = list(self.requests)
+            levels = {eid: list(d) for eid, d in self.levels.items()}
+            latest = dict(self.latest)
+            series = {eid: list(d) for eid, d in self.series.items()}
+            hour_calls, hour_high = list(self.hour_calls), list(self.hour_high)
+        base = int(now) - window_seconds + 1
+        tps = [0] * window_seconds
+        latency_buckets = [[] for _ in range(window_seconds // 5)]
+        recent = []
+        for ts, path, status, ms in requests:
+            if ts < base:
+                continue
+            i = int(ts) - base
+            if path in ("/predict", "/predict/batch-test"):
+                tps[i] += 1
+                recent.append({"ago": round(now - ts, 2), "path": path, "status": status, "ms": round(ms, 1)})
+            if path == "/predict":
+                latency_buckets[min(i // 5, len(latency_buckets) - 1)].append(ms)
+        latency = [{"p50": self._pct(b, 50), "p95": self._pct(b, 95)} for b in latency_buckets]
+        equipment = {}
+        for eid in sorted(set(levels) | set(latest)):
+            counts = {lv: 0 for lv in self.LEVELS}
+            for lv in levels.get(eid, []):
+                counts[lv] += 1
+            equipment[eid] = {"counts": counts, "latest": latest.get(eid), "series": series.get(eid, [])}
+        events = self._events()
+        return {"generated_at": datetime.now().isoformat(timespec="seconds"),
+                "window_seconds": window_seconds,
+                "tps": {"series": tps, "now": round(sum(tps[-5:]) / 5, 2), "peak": max(tps)},
+                "latency": latency, "recent_requests": recent[-800:],
+                "hourly": {"calls": hour_calls, "high": hour_high, "hour": datetime.now().hour},
+                "equipment": equipment, "events": events,
+                "event_counts": {lv: sum(1 for e in events if e["level"] == lv)
+                                 for lv in ("ALERT", "WARN", "INFO", "OK", "FAIL", "ERROR")}}
+
+
+class MetricsSampler:
+    """운영 지표 시계열 수집기: 1초마다 한 샘플을 logs/metrics.jsonl에 적고 최근 6시간은 메모리에 유지한다.
+
+    샘플: ts, tps, p50/p95(ms), 5xx 건수, 장비별 최신 이상 점수·윈도우 RMSE, 재학습 실행 여부.
+    파일은 하루 약 86,400줄(20MB)씩 늘어나므로 오래 운영하면 날짜별로 분리·보관하는 정책이 필요하다.
+    재시작 시 오늘 파일에서 최근 구간을 다시 읽어 이어 붙인다. 수집은 서빙 요청 처리와 분리된 스레드에서 돈다.
+    """
+    INTERVAL = 1
+
+    def __init__(self, live, monitor, retrain, log_dir, keep_hours=6):
+        self.live, self.monitor, self.retrain, self.log_dir = live, monitor, retrain, log_dir
+        self.samples = deque(maxlen=keep_hours * 3600 // self.INTERVAL)
+        self.lock = threading.Lock()
+        self._stop = threading.Event()
+        self._seed_today()
+
+    def _seed_today(self):
+        path = self.log_dir / "metrics.jsonl"
+        if not path.exists():
+            return
+        prefix = '{"ts": "' + datetime.now().date().isoformat()
+        with path.open(encoding="utf-8") as f:
+            for line in f:
+                if line.startswith(prefix):
+                    try:
+                        self.samples.append(json.loads(line))
+                    except ValueError:
+                        pass
+
+    def sample(self):
+        now = time.time()
+        with self.live.lock:
+            recent = [(ts, path, status, ms) for ts, path, status, ms in self.live.requests if ts >= now - self.INTERVAL]
+            latest = {eid: v["score"] for eid, v in self.live.latest.items()}
+        predict_ms = [ms for _, path, _, ms in recent if path == "/predict"]
+        drift = self.monitor.snapshot()["equipment"]
+        row = {"ts": datetime.now().isoformat(timespec="seconds"),
+               "tps": round(sum(1 for _, p, _, _ in recent if p in ("/predict", "/predict/batch-test")) / self.INTERVAL, 2),
+               "p50_ms": LiveStore._pct(predict_ms, 50), "p95_ms": LiveStore._pct(predict_ms, 95),
+               "errors_5xx": sum(1 for _, _, s, _ in recent if s >= 500),
+               "score": latest,
+               "window_rmse": {eid: (d["windows"][-1]["rmse"] if d["windows"] else None) for eid, d in drift.items()},
+               "retraining": self.retrain.status()["running"]}
+        with self.lock:
+            self.samples.append(row)
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+        with open(self.log_dir / "metrics.jsonl", "a", encoding="utf-8") as f:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+        return row
+
+    def run(self):
+        while not self._stop.wait(self.INTERVAL):
+            try:
+                self.sample()
+            except Exception:
+                logger.exception("metrics sampling failed")
+
+    def start(self):
+        threading.Thread(target=self.run, name="metrics-sampler", daemon=True).start()
+
+    def stop(self):
+        self._stop.set()
+
+    def range(self, minutes):
+        since = (datetime.now() - timedelta(minutes=minutes)).isoformat(timespec="seconds")
+        with self.lock:
+            return [s for s in self.samples if s["ts"] >= since]
+
+
 def _configure_aiops_log():
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     aiops = logging.getLogger("aiops")
@@ -123,7 +338,11 @@ def create_app():
     monitor = DriftMonitor()
     retrain = RetrainController(manager, monitor, load_series)
     ops = OpsMetrics()
+    live = LiveStore(LOG_DIR)
+    sampler = MetricsSampler(live, monitor, retrain, LOG_DIR)
     last_batch = {}  # 장비별 마지막 배치 판정 (대시보드 표시용)
+    alerts = HighAlerts()  # HIGH 예측 경보 (aiops.log + 선택 웹훅)
+    run_metrics = {}  # MLflow run_id -> 검증 지표 (불변이라 한 번만 읽는다)
 
     @asynccontextmanager
     async def lifespan(app):
@@ -132,7 +351,18 @@ def create_app():
             await run_in_threadpool(manager.get)
         app.state.startup_seconds = time.perf_counter() - start
         logger.info("[%s] startup %.3fs", mode, app.state.startup_seconds)
+        if demo_seed.enabled():  # 기동 시간 측정 뒤에 실행해 Eager 지표에 섞이지 않게 한다
+            try:
+                model = await run_in_threadpool(manager.get)
+                _, series = await run_in_threadpool(load_series)
+                app.state.demo_seed = await run_in_threadpool(demo_seed.seed, model, series, monitor,
+                                                              live, last_batch, alerts)
+                logger.info("demo seed: %s", app.state.demo_seed)
+            except Exception:
+                logger.exception("Demo seed failed; dashboard starts empty")
+        sampler.start()
         yield
+        sampler.stop()
 
     app = FastAPI(title="EtchGuard — 식각 장비 이상 징후 조기예측 API", version="3.0", lifespan=lifespan,
                   description="최근 20사이클(10시간) 센서 12종 → 다음 30분 이상 점수·위험 등급. "
@@ -144,8 +374,9 @@ def create_app():
         start = time.perf_counter()
         response = await call_next(request)
         route = request.scope.get("route")
-        ops.record(getattr(route, "path", request.url.path), response.status_code,
-                   (time.perf_counter() - start) * 1000)
+        path, ms = getattr(route, "path", request.url.path), (time.perf_counter() - start) * 1000
+        ops.record(path, response.status_code, ms)
+        live.record_request(path, response.status_code, ms)
         return response
 
     def model_or_503():
@@ -173,20 +404,28 @@ def create_app():
     def predict(request: PredictRequest):
         start = time.perf_counter()
         model = model_or_503()
+        raw = [[getattr(p, k) for k in FEATURES] for p in request.sequence]
         try:
-            score = float(model.predict([[[getattr(p, k) for k in FEATURES] for p in request.sequence]])[0])
+            score = float(model.predict([raw])[0])
         except Exception:
             logger.exception("Prediction failed")
             raise HTTPException(503, "Prediction failed. See server logs.")
         level = risk_level(score)
+        action = RECOMMENDED_ACTION[level]
+        # 점검 우선순위: 입력 창 20행이 같은 달 기준 중앙값에서 벗어난 정도(z-score) 상위 3개 센서
+        deviations = deviation_rank(model.profile, request.sequence[-1].timestamp, raw)
         target = request.sequence[-1].timestamp + timedelta(minutes=30)
         _append_predictions([{"logged_at": datetime.now().isoformat(timespec="seconds"), "source": "predict",
                               "equipment_id": request.equipment_id, "target_timestamp": target.isoformat(),
                               "predicted": round(score, 3), "model_version": model.version}])
+        live.record_predictions(request.equipment_id,
+                                [{"target_timestamp": target.isoformat(), "predicted": round(score, 3)}], "predict",
+                                extra={"action": action, "deviations": deviations})
+        alerts.observe(request.equipment_id, score, level, target.isoformat(), action,
+                       [f"{d['sensor']}({d['z']:+.2f}σ)" for d in deviations])
         return {"equipment_id": request.equipment_id, "target_timestamp": target.isoformat(),
                 "predicted_anomaly_score": round(score, 3), "risk_level": level,
-                "recommended_action": {"HIGH": "장비 점검 권고 (다음 lot 투입 전 확인)",
-                                       "WARNING": "추세 관찰 강화", "NORMAL": "정상 운전"}[level],
+                "recommended_action": action, "top_deviations": deviations,
                 "model_version": model.version, "model_source": manager.source,
                 "latency_ms": round((time.perf_counter()-start)*1000, 2), "simulation": True}
 
@@ -206,6 +445,10 @@ def create_app():
         drift = monitor.observe(request.equipment_id, pairs)
         # 월 경계에 걸친 배치는 중앙 시점의 달을 기준 분포로 쓴다 (7/27~8/3 배치 → 7월 기준)
         diagnostics = diagnose(model.profile, request.records[len(request.records) // 2].timestamp, raw)
+        live.record_predictions(request.equipment_id,
+                                [{"target_timestamp": p["timestamp"], "predicted": p["predicted"],
+                                  "actual": p["actual"]} for p in pairs], "batch-test",
+                                extra={"suspects": diagnostics.get("top_sensors", [])}, count_today=False)
         decision = retrain.check_and_trigger(request.equipment_id, drift,
                                              request.records[-1].timestamp, diagnostics)
         last_batch[request.equipment_id] = {
@@ -225,7 +468,52 @@ def create_app():
                 "gate": {"rmse_max": GATE_RMSE_MAX, "recall_min": GATE_RECALL_MIN,
                          "precision_min": GATE_PRECISION_MIN},
                 "drift": monitor.snapshot(), "last_batch": dict(sorted(last_batch.items())),
-                "retrain": retrain.status(), "ops": ops.snapshot()}
+                "retrain": retrain.status(), "ops": ops.snapshot(), "alerts": alerts.snapshot()}
+
+    @app.get("/monitoring/dashboard", tags=["aiops"])
+    def monitoring_dashboard():
+        """실시간 대시보드용 통합 스냅샷: 최근 3분 요청·지연, 오늘 시간대별 예측·HIGH, 장비 상태, 이벤트."""
+        model = manager.model
+        return {**live.snapshot(),
+                "model": {"version": model.version if model else None, "source": manager.source,
+                          "loading_mode": mode},
+                "gate": {"rmse_max": GATE_RMSE_MAX, "recall_min": GATE_RECALL_MIN,
+                         "precision_min": GATE_PRECISION_MIN},
+                "drift": monitor.snapshot(), "last_batch": dict(sorted(last_batch.items())),
+                "retrain": retrain.status(), "ops": ops.snapshot(), "alerts": alerts.snapshot()}
+
+    @app.get("/monitoring/models", tags=["aiops"])
+    def model_history(limit: int = Query(10, ge=1, le=50)):
+        """MLflow Registry 버전별 게이트 결과·검증 지표(최신순). 실패 버전도 기록으로 남는다. MODEL_SOURCE=local이면 빈 목록."""
+        if manager.source != "mlflow":
+            return {"source": manager.source, "production": None, "versions": []}
+        import mlflow
+        from mlflow.tracking import MlflowClient
+        mlflow.set_tracking_uri(tracking_uri())
+        client = MlflowClient()
+        production = client.get_registered_model(MODEL_NAME).aliases.get(ALIAS)
+        versions = sorted(client.search_model_versions(f"name='{MODEL_NAME}'"), key=lambda v: int(v.version),
+                          reverse=True)[:limit]
+        rows = []
+        for v in versions:
+            if v.run_id not in run_metrics:
+                run_metrics[v.run_id] = client.get_run(v.run_id).data.metrics
+            m = run_metrics[v.run_id]
+            rows.append({"version": int(v.version), "mode": v.tags.get("mode", "base"),
+                         "created_at": datetime.fromtimestamp(v.creation_timestamp / 1000).isoformat(timespec="seconds"),
+                         "gate_passed": v.tags.get("gate_passed") == "True", "production": str(v.version) == str(production),
+                         "rmse": m.get("validation_rmse"), "recall": m.get("validation_recall"),
+                         "precision": m.get("validation_precision"), "champion_rmse": m.get("champion_holdout_rmse"),
+                         "golden_rmse": m.get("golden_normal_rmse")})
+        return {"source": manager.source, "production": production,
+                "gate": {"rmse_max": GATE_RMSE_MAX, "recall_min": GATE_RECALL_MIN, "precision_min": GATE_PRECISION_MIN},
+                "versions": rows}
+
+    @app.get("/monitoring/timeseries", tags=["aiops"])
+    def monitoring_timeseries(minutes: int = Query(60, ge=1, le=360)):
+        """1초 간격으로 수집한 운영 지표 시계열(logs/metrics.jsonl). 최근 6시간까지 조회."""
+        samples = sampler.range(minutes)
+        return {"interval_seconds": sampler.INTERVAL, "minutes": minutes, "count": len(samples), "samples": samples}
 
     @app.post("/data/upload", tags=["data"])
     async def upload(file: UploadFile = File(...)):
@@ -296,6 +584,10 @@ def create_app():
 
     @app.get("/", include_in_schema=False)
     def home():
+        return FileResponse(ROOT / "semiconductor/static/dashboard.html")
+
+    @app.get("/console", include_in_schema=False)
+    def console():
         return FileResponse(ROOT / "semiconductor/static/index.html")
 
     return app
