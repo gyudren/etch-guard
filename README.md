@@ -80,7 +80,7 @@ evidence/ 실행 로그·측정 JSON         docs/  기획서·스크린샷
 |---|---|---|
 | 배포 게이트 | 검증 RMSE ≤ 4.0, HIGH Recall ≥ 0.80, Precision ≥ 0.80 | 미탐=불량 웨이퍼 진행, 오탐=불필요 정비 |
 | 재학습 게이트 | 위 기준(최근 홀드아웃) + 현 Production보다 개선 + 고정 정상셋 RMSE ≤ 4.0 | 작은 검증셋 우연 통과·망각 방지 |
-| 드리프트 | 12시간 윈도우 RMSE > 5.0 이 3회 연속 | 2025 정상 구간 오탐 0건, 탐지 지연 36시간 |
+| 드리프트 | 12시간 윈도우 RMSE > 4.0 이 3회 연속 (배포 게이트와 같은 품질선) | 2025 정상 구간 오탐 0.03회/장비·월(목표 1회 미만), 드리프트 판정률 76.8%(5.0은 60.5%), 탐지 지연 36시간 |
 | 재학습 | Production 가중치 warm start, 최근 7일 전 장비, lr 1e-4 × 10 epoch, 스케일러 재사용 | scratch 대비 정상셋 RMSE 6.43 → 3.39 |
 | 실패 시 | Production 유지([FAIL] 로그), 수동 롤백 CLI | |
 
@@ -128,7 +128,7 @@ Windows PowerShell에서는 `$env:MODEL_SOURCE="mlflow"; $env:LOADING_MODE="eage
 
 1. 콘솔 **02** 카드에서 `예시 불러오기` → `예측`: 30분 뒤 이상 점수와 위험 등급이 나옵니다.
 2. 콘솔 **03** 카드에서 `① 정상` → `② 계절 변화` → `③ 드리프트 주입` → `④ 재학습 후 다음 주` 순서로 누릅니다. 다른 터미널에서 `python scripts/simulate_drift.py`를 실행해도 같습니다.
-3. 콘솔 **04** 재학습 로그에서 `[WARN] drift detected` → `[INFO] retrain triggered` → `[OK] ... production-v1 → production-v2` 순서를 확인합니다.
+3. 콘솔 **04** 재학습 로그를 확인합니다. `① 정상`에서 ETCH-03의 6월 돌발 이상 구간이 기준(4.0)을 3회 연속 넘어 재학습이 한 번 실행되지만 `[FAIL] ... keep production-v1`로 끝납니다(v2는 기록만). 이어서 `③ 드리프트 주입`에서 `[WARN] drift detected` → `[INFO] retrain triggered` → `[OK] ... production-v1 → production-v3` 순서가 기록됩니다.
 
 ### 5. Docker로 실행 (선택)
 

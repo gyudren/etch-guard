@@ -1,51 +1,51 @@
 {
   "health_before": {
     "status": 200,
-    "seconds": 0.0149,
+    "seconds": 0.0061,
     "body": {
       "status": "ok",
       "model_loaded": true,
       "loading_mode": "eager",
       "model_source": "mlflow",
-      "model_version": "production-v1",
-      "startup_seconds": 2.19994654300001,
-      "model_load_seconds": 2.1954002509999953
+      "model_version": "production-v3",
+      "startup_seconds": 2.7956477089901455,
+      "model_load_seconds": 0.02341841597808525
     }
   },
   "first_predict": {
     "status": 200,
-    "seconds": 0.0467,
+    "seconds": 0.0331,
     "body": {
       "equipment_id": "ETCH-01",
       "target_timestamp": "2023-01-01T10:00:00",
-      "predicted_anomaly_score": 31.466,
+      "predicted_anomaly_score": 32.47,
       "risk_level": "NORMAL",
       "recommended_action": "정상 운전",
-      "model_version": "production-v1",
+      "model_version": "production-v3",
       "model_source": "mlflow",
-      "latency_ms": 44.26,
+      "latency_ms": 30.91,
       "simulation": true
     }
   },
   "second_predict": {
     "status": 200,
-    "seconds": 0.0266,
+    "seconds": 0.0299,
     "body": {
       "equipment_id": "ETCH-01",
       "target_timestamp": "2023-01-01T10:00:00",
-      "predicted_anomaly_score": 31.466,
+      "predicted_anomaly_score": 32.47,
       "risk_level": "NORMAL",
       "recommended_action": "정상 운전",
-      "model_version": "production-v1",
+      "model_version": "production-v3",
       "model_source": "mlflow",
-      "latency_ms": 24.97,
+      "latency_ms": 28.08,
       "simulation": true
     }
   },
   "invalid_inputs": {
     "19_points": {
       "status": 422,
-      "seconds": 0.0046,
+      "seconds": 0.0014,
       "body": {
         "detail": [
           {
@@ -353,7 +353,7 @@
     },
     "negative_pressure": {
       "status": 422,
-      "seconds": 0.0021,
+      "seconds": 0.0015,
       "body": {
         "detail": [
           {
@@ -676,7 +676,7 @@
     },
     "reversed_time": {
       "status": 422,
-      "seconds": 0.002,
+      "seconds": 0.0017,
       "body": {
         "detail": [
           {
@@ -999,7 +999,7 @@
     },
     "label_leak_field": {
       "status": 422,
-      "seconds": 0.0013,
+      "seconds": 0.0012,
       "body": {
         "detail": [
           {
@@ -1019,25 +1019,25 @@
   },
   "health_after": {
     "status": 200,
-    "seconds": 0.0008,
+    "seconds": 0.001,
     "body": {
       "status": "ok",
       "model_loaded": true,
       "loading_mode": "eager",
       "model_source": "mlflow",
-      "model_version": "production-v1",
-      "startup_seconds": 2.19994654300001,
-      "model_load_seconds": 2.1954002509999953
+      "model_version": "production-v3",
+      "startup_seconds": 2.7956477089901455,
+      "model_load_seconds": 0.02341841597808525
     }
   },
   "summary": {
     "label": "docker",
     "loading_mode": "eager",
-    "model_version": "production-v1",
+    "model_version": "production-v3",
     "process_start_to_first_health_s": null,
-    "lifespan_startup_s": 2.1999,
-    "first_predict_s": 0.0467,
-    "second_predict_s": 0.0266,
+    "lifespan_startup_s": 2.7956,
+    "first_predict_s": 0.0331,
+    "second_predict_s": 0.0299,
     "invalid_input_statuses": {
       "19_points": 422,
       "negative_pressure": 422,

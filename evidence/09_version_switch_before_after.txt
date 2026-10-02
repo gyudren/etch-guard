@@ -1,0 +1,14 @@
+# 모델 버전 전환 전/후 응답 (같은 입력 · 서버 재시작 없음) — 드리프트 임계값 4.0 실행 (2026-10-02)
+# 요청: GET /data/example 의 ETCH-01 시퀀스(2023-01-01 00:00~09:30, 20사이클)를 POST /predict 로 두 번 전송
+# 전: 시뮬레이션 시작 전 (Production v1)
+# 후: 6월 오경보 재학습 [FAIL](v2, 기존 v1 유지) → 드리프트 재학습 [OK](v3 승격) 이후
+
+[before] GET /health
+{"status": "ok", "model_loaded": true, "loading_mode": "eager", "model_source": "mlflow", "model_version": "production-v1", "startup_seconds": 2.8726073330035433, "model_load_seconds": 2.8672434580512345}
+[before] POST /predict
+{"equipment_id": "ETCH-01", "target_timestamp": "2023-01-01T10:00:00", "predicted_anomaly_score": 31.473, "risk_level": "NORMAL", "recommended_action": "정상 운전", "model_version": "production-v1", "model_source": "mlflow", "latency_ms": 34.03, "simulation": true}
+
+[after] GET /health
+{"status": "ok", "model_loaded": true, "loading_mode": "eager", "model_source": "mlflow", "model_version": "production-v3", "startup_seconds": 2.8726073330035433, "model_load_seconds": 0.024975833017379045}
+[after] POST /predict
+{"equipment_id": "ETCH-01", "target_timestamp": "2023-01-01T10:00:00", "predicted_anomaly_score": 32.406, "risk_level": "NORMAL", "recommended_action": "정상 운전", "model_version": "production-v3", "model_source": "mlflow", "latency_ms": 32.46, "simulation": true}

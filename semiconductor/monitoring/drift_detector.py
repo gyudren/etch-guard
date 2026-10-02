@@ -1,7 +1,7 @@
 """성능 드리프트 판정: 예측값과 확정 이상 점수(actual)의 윈도우 RMSE.
 
 - 윈도우: DRIFT_WINDOW(24사이클 = 12시간) 단위로 겹치지 않게 자른다.
-- 판정: 윈도우 RMSE > DRIFT_RMSE_THRESHOLD(5.0)가 DRIFT_CONSECUTIVE(3)회 연속이면 드리프트.
+- 판정: 윈도우 RMSE > DRIFT_RMSE_THRESHOLD(4.0)가 DRIFT_CONSECUTIVE(3)회 연속이면 드리프트.
   단발성 돌발 이상(burst)이나 정비 직후 튐은 1~2개 윈도우에서 끝나므로 재학습을 유발하지 않는다.
 - 장비별로 독립 판정한다. 한 장비의 이상이 다른 장비의 윈도우를 오염시키지 않는다.
 """

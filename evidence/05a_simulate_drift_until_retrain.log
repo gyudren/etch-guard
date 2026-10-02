@@ -3,24 +3,24 @@
 === normal: 정상 운전 (2025년 6월, 학습에 쓰지 않은 기간) ===
 [normal] ETCH-01 n=336 batch_rmse=2.64 last_window=2.671 streak=0 status=ok model=production-v1 (0.0s)
 [normal] ETCH-02 n=336 batch_rmse=2.46 last_window=2.781 streak=0 status=ok model=production-v1 (0.0s)
-[normal] ETCH-03 n=336 batch_rmse=3.29 last_window=2.037 streak=0 status=ok model=production-v1 (0.0s)
-[normal] ETCH-04 n=336 batch_rmse=2.52 last_window=2.603 streak=0 status=ok model=production-v1 (0.0s)
-[normal] ETCH-05 n=336 batch_rmse=4.34 last_window=2.958 streak=0 status=ok model=production-v1 (0.0s)
+[normal] ETCH-03 n=336 batch_rmse=3.29 last_window=2.037 streak=0 status=retrain_triggered model=production-v1 (0.1s) | suspects: ambient_humidity_pct x21.0, ambient_temperature_c x3.3, cooling_water_temperature_c x2.6
+[normal] ETCH-04 n=336 batch_rmse=2.52 last_window=2.603 streak=0 status=ok model=production-v1 (0.2s)
+[normal] ETCH-05 n=336 batch_rmse=4.34 last_window=2.958 streak=0 status=ok model=production-v1 (0.1s)
 
 === season: 계절 변화: 장마·고온 (재학습이 일어나면 안 됨) ===
-[season] ETCH-01 n=336 batch_rmse=2.88 last_window=2.805 streak=0 status=ok model=production-v1 (0.0s)
-[season] ETCH-02 n=336 batch_rmse=4.75 last_window=6.902 streak=1 status=watch model=production-v1 (0.0s) | suspects: ambient_humidity_pct x2.6, o2_flow_sccm x0.9, chamber_temperature_c x0.8
+[season] ETCH-01 n=336 batch_rmse=2.88 last_window=2.805 streak=0 status=ok model=production-v1 (0.1s)
+[season] ETCH-02 n=336 batch_rmse=4.75 last_window=6.902 streak=2 status=watch model=production-v1 (0.0s) | suspects: ambient_humidity_pct x2.6, o2_flow_sccm x0.9, chamber_temperature_c x0.8
 [season] ETCH-03 n=336 batch_rmse=2.57 last_window=2.322 streak=0 status=ok model=production-v1 (0.0s)
 [season] ETCH-04 n=336 batch_rmse=2.53 last_window=2.326 streak=0 status=ok model=production-v1 (0.0s)
 [season] ETCH-05 n=336 batch_rmse=2.42 last_window=1.913 streak=0 status=ok model=production-v1 (0.0s)
 
 === drift_injection: 드리프트: 소모품 노후·레시피 변경 (압력↑, RF↓, 진동↑) ===
 [drift_injection] ETCH-01 n=336 batch_rmse=8.56 last_window=6.563 streak=14 status=retrain_triggered model=production-v1 (0.0s) | suspects: rf_power_w x10.2, vibration_mm_s x2.6, chamber_pressure_mtorr x2.4
-[drift_injection] ETCH-02 n=336 batch_rmse=7.18 last_window=5.068 streak=1 status=retrain_in_progress model=production-v1 (0.1s) | suspects: rf_power_w x8.4, vibration_mm_s x2.0, chamber_pressure_mtorr x1.7
+[drift_injection] ETCH-02 n=336 batch_rmse=7.18 last_window=5.068 streak=16 status=retrain_in_progress model=production-v1 (0.1s) | suspects: rf_power_w x8.4, vibration_mm_s x2.0, chamber_pressure_mtorr x1.7
 [drift_injection] ETCH-03 n=336 batch_rmse=7.48 last_window=7.387 streak=14 status=retrain_in_progress model=production-v1 (0.1s) | suspects: rf_power_w x8.1, vibration_mm_s x1.7, chamber_pressure_mtorr x1.4
-[drift_injection] ETCH-04 n=336 batch_rmse=7.74 last_window=8.252 streak=14 status=retrain_in_progress model=production-v1 (0.1s) | suspects: rf_power_w x7.3, chamber_temperature_c x2.1, process_time_sec x1.8
-[drift_injection] ETCH-05 n=336 batch_rmse=8.34 last_window=10.667 streak=14 status=retrain_in_progress model=production-v1 (0.1s) | suspects: rf_power_w x12.2, chamber_pressure_mtorr x4.6, vibration_mm_s x3.7
-[retrain] {"equipment_id": "ETCH-01", "until": "2025-07-27T13:30:00", "started_at": "2026-10-01T09:26:05", "promoted": true, "new_rmse": 2.638, "champion_rmse": 7.858, "checks": {"finite": true, "rmse": true, "high_recall": true, "high_precision": true, "beats_champion": true, "no_regression_golden": true}, "registered_version": 2, "previous_version": "production-v1", "new_version": "production-v2", "finished_at": "2026-10-01T09:26:08"}
+[drift_injection] ETCH-04 n=336 batch_rmse=7.74 last_window=8.252 streak=14 status=retrain_in_progress model=production-v1 (0.2s) | suspects: rf_power_w x7.3, chamber_temperature_c x2.1, process_time_sec x1.8
+[drift_injection] ETCH-05 n=336 batch_rmse=8.34 last_window=10.667 streak=14 status=retrain_in_progress model=production-v1 (0.3s) | suspects: rf_power_w x12.2, chamber_pressure_mtorr x4.6, vibration_mm_s x3.7
+[retrain] {"equipment_id": "ETCH-01", "until": "2025-07-27T13:30:00", "started_at": "2026-10-02T09:14:06", "promoted": true, "new_rmse": 2.638, "champion_rmse": 7.858, "checks": {"finite": true, "rmse": true, "high_recall": true, "high_precision": true, "beats_champion": true, "no_regression_golden": true}, "registered_version": 3, "previous_version": "production-v1", "new_version": "production-v3", "finished_at": "2026-10-02T09:14:10"}
 
-[done] model production-v1 → production-v2
+[done] model production-v1 → production-v3
 evidence → evidence/05a_simulate_drift_until_retrain.json

@@ -101,4 +101,4 @@
     ]
   }
 }
-chosen: {'window_cycles': 24, 'window_hours': 12.0, 'threshold': 5.0, 'consecutive': 3, 'false_alarms_per_equipment_month': 0.0, 'drift_windows_flagged': 0.605, 'detection_delay_hours': [36.0, 36.0, 36.0, 36.0, 36.0]}
+chosen: {'window_cycles': 24, 'window_hours': 12.0, 'threshold': 4.0, 'consecutive': 3, 'false_alarms_per_equipment_month': 0.03, 'drift_windows_flagged': 0.768, 'detection_delay_hours': [36.0, 36.0, 36.0, 36.0, 36.0]}

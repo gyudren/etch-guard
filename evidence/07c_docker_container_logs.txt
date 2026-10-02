@@ -1,15 +1,15 @@
-etchguard-1  | INFO:     172.26.0.1:55488 - "GET /monitoring/status HTTP/1.1" 200 OK
-etchguard-1  | INFO:     172.26.0.1:55502 - "GET /data/batch?equipment_id=ETCH-01&start=2025-07-27T14%3A00%3A00&cycles=336 HTTP/1.1" 200 OK
-etchguard-1  | INFO:     172.26.0.1:55518 - "POST /predict/batch-test HTTP/1.1" 200 OK
-etchguard-1  | INFO:     172.26.0.1:55532 - "GET /data/batch?equipment_id=ETCH-02&start=2025-07-27T14%3A00%3A00&cycles=336 HTTP/1.1" 200 OK
-etchguard-1  | INFO:     127.0.0.1:53338 - "GET /ready HTTP/1.1" 200 OK
-etchguard-1  | INFO:     172.26.0.1:55542 - "POST /predict/batch-test HTTP/1.1" 200 OK
-etchguard-1  | INFO:     172.26.0.1:55554 - "GET /data/batch?equipment_id=ETCH-03&start=2025-07-27T14%3A00%3A00&cycles=336 HTTP/1.1" 200 OK
-etchguard-1  | INFO:     172.26.0.1:55562 - "POST /predict/batch-test HTTP/1.1" 200 OK
-etchguard-1  | INFO:     172.26.0.1:55576 - "GET /data/batch?equipment_id=ETCH-04&start=2025-07-27T14%3A00%3A00&cycles=336 HTTP/1.1" 200 OK
-etchguard-1  | INFO:     172.26.0.1:55580 - "POST /predict/batch-test HTTP/1.1" 200 OK
-etchguard-1  | INFO:     172.26.0.1:55590 - "GET /data/batch?equipment_id=ETCH-05&start=2025-07-27T14%3A00%3A00&cycles=336 HTTP/1.1" 200 OK
-etchguard-1  | INFO:     172.26.0.1:55604 - "POST /predict/batch-test HTTP/1.1" 200 OK
-etchguard-1  | INFO:     172.26.0.1:55608 - "GET /monitoring/status HTTP/1.1" 200 OK
-etchguard-1  | INFO:     172.26.0.1:55618 - "GET /health HTTP/1.1" 200 OK
-etchguard-1  | INFO:     172.26.0.1:55634 - "GET /logs/aiops.log HTTP/1.1" 200 OK
+etchguard-1  | INFO:     172.21.0.1:55622 - "POST /predict/batch-test HTTP/1.1" 200 OK
+etchguard-1  | INFO:     172.21.0.1:55634 - "GET /data/batch?equipment_id=ETCH-05&start=2025-07-27T14%3A00%3A00&cycles=336 HTTP/1.1" 200 OK
+etchguard-1  | INFO:     172.21.0.1:55650 - "POST /predict/batch-test HTTP/1.1" 200 OK
+etchguard-1  | INFO:     172.21.0.1:55656 - "GET /monitoring/status HTTP/1.1" 200 OK
+etchguard-1  | INFO:     172.21.0.1:55670 - "GET /health HTTP/1.1" 200 OK
+etchguard-1  | INFO:     172.21.0.1:55676 - "GET /logs/aiops.log HTTP/1.1" 200 OK
+etchguard-1  | INFO:     172.21.0.1:57278 - "GET /health HTTP/1.1" 200 OK
+etchguard-1  | INFO:     172.21.0.1:57294 - "GET /data/example HTTP/1.1" 200 OK
+etchguard-1  | INFO:     172.21.0.1:57296 - "POST /predict HTTP/1.1" 200 OK
+etchguard-1  | INFO:     172.21.0.1:57304 - "POST /predict HTTP/1.1" 200 OK
+etchguard-1  | INFO:     172.21.0.1:57318 - "POST /predict HTTP/1.1" 422 Unprocessable Entity
+etchguard-1  | INFO:     172.21.0.1:57326 - "POST /predict HTTP/1.1" 422 Unprocessable Entity
+etchguard-1  | INFO:     172.21.0.1:57342 - "POST /predict HTTP/1.1" 422 Unprocessable Entity
+etchguard-1  | INFO:     172.21.0.1:57352 - "POST /predict HTTP/1.1" 422 Unprocessable Entity
+etchguard-1  | INFO:     172.21.0.1:57362 - "GET /health HTTP/1.1" 200 OK

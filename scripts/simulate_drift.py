@@ -1,7 +1,7 @@
 """Day3 드리프트 시뮬레이션: 정상 → 계절 변화(여름) → 드리프트 주입 → 재학습 후 순서로 배치를 보낸다.
 
 각 배치는 장비 1대의 7일치(336사이클) 확정 이상 점수 기록 + 앞 20사이클 문맥이다.
-서버(/predict/batch-test)는 12시간 윈도우 RMSE를 누적해 3회 연속 5.0 초과 시 드리프트로 판정한다.
+서버(/predict/batch-test)는 12시간 윈도우 RMSE를 누적해 3회 연속 4.0 초과 시 드리프트로 판정한다.
 
 사전 준비: 서버 실행 (예: MODEL_SOURCE=mlflow LOADING_MODE=eager uvicorn semiconductor.app:app --port 8000)
 실행:     python scripts/simulate_drift.py [--url http://127.0.0.1:8000]

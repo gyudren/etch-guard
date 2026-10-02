@@ -1,3 +1,4 @@
 v1   mode=base      gate_passed=True  rmse=3.164
-v2   mode=fine-tune gate_passed=True  rmse=2.638  ← Production
-v3   mode=base      gate_passed=False rmse=3.164
+v2   mode=fine-tune gate_passed=False rmse=2.384
+v3   mode=fine-tune gate_passed=True  rmse=2.638  ← Production
+v4   mode=base      gate_passed=False rmse=3.164

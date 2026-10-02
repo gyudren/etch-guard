@@ -99,7 +99,7 @@ def main():
     result = {"generated_at": datetime.now().isoformat(timespec="seconds"), "bundle": pointer["bundle"],
               "policy_table": policy_table(predictions(series, bundle)), "psi": psi_study(series)}
     chosen = next(r for r in result["policy_table"]
-                  if (r["window_cycles"], r["threshold"], r["consecutive"]) == (24, 5.0, 3))
+                  if (r["window_cycles"], r["threshold"], r["consecutive"]) == (24, 4.0, 3))
     result["chosen_policy"] = chosen
     out = Path("evidence/04_drift_policy.json")
     out.parent.mkdir(exist_ok=True)

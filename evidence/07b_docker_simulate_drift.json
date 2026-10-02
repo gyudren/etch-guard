@@ -5,8 +5,8 @@
     "loading_mode": "eager",
     "model_source": "mlflow",
     "model_version": "production-v1",
-    "startup_seconds": 2.19994654300001,
-    "model_load_seconds": 2.1954002509999953
+    "startup_seconds": 2.7956477089901455,
+    "model_load_seconds": 2.7891952919890173
   },
   "phases": [
     {
@@ -27,7 +27,7 @@
             "drift": false,
             "detected_at": null,
             "detected_window_rmse": null,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
@@ -38,12 +38,12 @@
               {
                 "sensor": "ambient_humidity_pct",
                 "psi": 3.13,
-                "ratio": 23.1
+                "ratio": 23.5
               },
               {
                 "sensor": "ambient_temperature_c",
                 "psi": 0.951,
-                "ratio": 4.5
+                "ratio": 4.7
               },
               {
                 "sensor": "cooling_water_temperature_c",
@@ -70,7 +70,7 @@
             "drift": false,
             "detected_at": null,
             "detected_window_rmse": null,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
@@ -81,17 +81,17 @@
               {
                 "sensor": "ambient_humidity_pct",
                 "psi": 3.31,
-                "ratio": 24.5
+                "ratio": 24.8
               },
               {
                 "sensor": "cooling_water_temperature_c",
                 "psi": 1.275,
-                "ratio": 3.6
+                "ratio": 3.7
               },
               {
                 "sensor": "ambient_temperature_c",
                 "psi": 0.364,
-                "ratio": 1.7
+                "ratio": 1.8
               }
             ],
             "shifted": [
@@ -106,14 +106,15 @@
           "n_predictions": 336,
           "batch_rmse": 3.277,
           "drift_check": {
-            "status": "ok",
+            "status": "retrain_triggered",
+            "background": true,
             "windows_evaluated": 14,
             "latest_window_rmse": 2.022,
             "consecutive_over": 0,
-            "drift": false,
-            "detected_at": null,
-            "detected_window_rmse": null,
-            "threshold": 5.0,
+            "drift": true,
+            "detected_at": "2025-06-04T11:30:00",
+            "detected_window_rmse": 5.924,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
@@ -124,12 +125,12 @@
               {
                 "sensor": "ambient_humidity_pct",
                 "psi": 2.797,
-                "ratio": 20.7
+                "ratio": 21.0
               },
               {
                 "sensor": "ambient_temperature_c",
                 "psi": 0.672,
-                "ratio": 3.2
+                "ratio": 3.3
               },
               {
                 "sensor": "cooling_water_temperature_c",
@@ -156,7 +157,7 @@
             "drift": false,
             "detected_at": null,
             "detected_window_rmse": null,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
@@ -167,16 +168,16 @@
               {
                 "sensor": "ambient_humidity_pct",
                 "psi": 3.007,
-                "ratio": 22.2
-              },
-              {
-                "sensor": "cooling_water_temperature_c",
-                "psi": 0.901,
-                "ratio": 2.6
+                "ratio": 22.6
               },
               {
                 "sensor": "ambient_temperature_c",
                 "psi": 0.543,
+                "ratio": 2.7
+              },
+              {
+                "sensor": "cooling_water_temperature_c",
+                "psi": 0.901,
                 "ratio": 2.6
               }
             ],
@@ -198,7 +199,7 @@
             "drift": false,
             "detected_at": null,
             "detected_window_rmse": null,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
@@ -209,7 +210,7 @@
               {
                 "sensor": "ambient_humidity_pct",
                 "psi": 3.012,
-                "ratio": 22.3
+                "ratio": 22.6
               },
               {
                 "sensor": "cooling_water_temperature_c",
@@ -219,7 +220,7 @@
               {
                 "sensor": "ambient_temperature_c",
                 "psi": 0.552,
-                "ratio": 2.6
+                "ratio": 2.7
               }
             ],
             "shifted": [
@@ -229,7 +230,25 @@
           }
         }
       ],
-      "retrain_after_phase": null
+      "retrain_after_phase": {
+        "equipment_id": "ETCH-03",
+        "until": "2025-06-07T23:30:00",
+        "started_at": "2026-10-02T00:19:50",
+        "promoted": false,
+        "new_rmse": 2.385,
+        "champion_rmse": 2.551,
+        "checks": {
+          "finite": true,
+          "rmse": true,
+          "high_recall": false,
+          "high_precision": false,
+          "beats_champion": true,
+          "no_regression_golden": true
+        },
+        "registered_version": 2,
+        "kept_version": "production-v1",
+        "finished_at": "2026-10-02T00:19:53"
+      }
     },
     {
       "label": "season",
@@ -249,7 +268,7 @@
             "drift": false,
             "detected_at": null,
             "detected_window_rmse": null,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
@@ -260,7 +279,7 @@
               {
                 "sensor": "chamber_temperature_c",
                 "psi": 3.684,
-                "ratio": 3.2
+                "ratio": 3.1
               },
               {
                 "sensor": "ambient_humidity_pct",
@@ -287,11 +306,11 @@
             "status": "watch",
             "windows_evaluated": 14,
             "latest_window_rmse": 6.771,
-            "consecutive_over": 1,
+            "consecutive_over": 2,
             "drift": false,
             "detected_at": null,
             "detected_window_rmse": null,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
@@ -312,7 +331,7 @@
               {
                 "sensor": "chamber_temperature_c",
                 "psi": 0.993,
-                "ratio": 0.9
+                "ratio": 0.8
               }
             ],
             "shifted": []
@@ -331,7 +350,7 @@
             "drift": false,
             "detected_at": null,
             "detected_window_rmse": null,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
@@ -347,7 +366,7 @@
               {
                 "sensor": "chamber_temperature_c",
                 "psi": 1.791,
-                "ratio": 1.6
+                "ratio": 1.5
               },
               {
                 "sensor": "particle_count",
@@ -371,7 +390,7 @@
             "drift": false,
             "detected_at": null,
             "detected_window_rmse": null,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
@@ -387,7 +406,7 @@
               {
                 "sensor": "ambient_humidity_pct",
                 "psi": 0.247,
-                "ratio": 1.8
+                "ratio": 1.9
               },
               {
                 "sensor": "vibration_mm_s",
@@ -411,7 +430,7 @@
             "drift": false,
             "detected_at": null,
             "detected_window_rmse": null,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
@@ -441,7 +460,25 @@
           }
         }
       ],
-      "retrain_after_phase": null
+      "retrain_after_phase": {
+        "equipment_id": "ETCH-03",
+        "until": "2025-06-07T23:30:00",
+        "started_at": "2026-10-02T00:19:50",
+        "promoted": false,
+        "new_rmse": 2.385,
+        "champion_rmse": 2.551,
+        "checks": {
+          "finite": true,
+          "rmse": true,
+          "high_recall": false,
+          "high_precision": false,
+          "beats_champion": true,
+          "no_regression_golden": true
+        },
+        "registered_version": 2,
+        "kept_version": "production-v1",
+        "finished_at": "2026-10-02T00:19:53"
+      }
     },
     {
       "label": "drift_injection",
@@ -462,7 +499,7 @@
             "drift": true,
             "detected_at": "2025-07-22T01:30:00",
             "detected_window_rmse": 10.321,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
@@ -473,7 +510,7 @@
               {
                 "sensor": "rf_power_w",
                 "psi": 4.615,
-                "ratio": 10.3
+                "ratio": 10.2
               },
               {
                 "sensor": "vibration_mm_s",
@@ -500,11 +537,11 @@
             "status": "retrain_in_progress",
             "windows_evaluated": 14,
             "latest_window_rmse": 5.314,
-            "consecutive_over": 1,
+            "consecutive_over": 16,
             "drift": true,
-            "detected_at": "2025-07-21T13:30:00",
-            "detected_window_rmse": 8.539,
-            "threshold": 5.0,
+            "detected_at": "2025-07-21T01:30:00",
+            "detected_window_rmse": 6.189,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
@@ -515,7 +552,7 @@
               {
                 "sensor": "rf_power_w",
                 "psi": 3.799,
-                "ratio": 8.5
+                "ratio": 8.4
               },
               {
                 "sensor": "vibration_mm_s",
@@ -546,7 +583,7 @@
             "drift": true,
             "detected_at": "2025-07-22T01:30:00",
             "detected_window_rmse": 8.066,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
@@ -557,7 +594,7 @@
               {
                 "sensor": "rf_power_w",
                 "psi": 3.664,
-                "ratio": 8.2
+                "ratio": 8.1
               },
               {
                 "sensor": "vibration_mm_s",
@@ -588,7 +625,7 @@
             "drift": true,
             "detected_at": "2025-07-22T01:30:00",
             "detected_window_rmse": 6.356,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
@@ -630,7 +667,7 @@
             "drift": true,
             "detected_at": "2025-07-22T01:30:00",
             "detected_window_rmse": 6.527,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
@@ -641,7 +678,7 @@
               {
                 "sensor": "rf_power_w",
                 "psi": 5.52,
-                "ratio": 12.3
+                "ratio": 12.2
               },
               {
                 "sensor": "chamber_pressure_mtorr",
@@ -665,7 +702,7 @@
       "retrain_after_phase": {
         "equipment_id": "ETCH-01",
         "until": "2025-07-27T13:30:00",
-        "started_at": "2026-10-01T00:23:11",
+        "started_at": "2026-10-02T00:19:53",
         "promoted": true,
         "new_rmse": 2.642,
         "champion_rmse": 8.038,
@@ -677,10 +714,10 @@
           "beats_champion": true,
           "no_regression_golden": true
         },
-        "registered_version": 2,
+        "registered_version": 3,
         "previous_version": "production-v1",
-        "new_version": "production-v2",
-        "finished_at": "2026-10-01T00:23:13"
+        "new_version": "production-v3",
+        "finished_at": "2026-10-02T00:19:55"
       }
     },
     {
@@ -690,7 +727,7 @@
       "results": [
         {
           "equipment_id": "ETCH-01",
-          "model_version": "production-v2",
+          "model_version": "production-v3",
           "n_predictions": 336,
           "batch_rmse": 2.565,
           "drift_check": {
@@ -701,40 +738,40 @@
             "drift": false,
             "detected_at": null,
             "detected_window_rmse": null,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
           "input_diagnostics": {
             "available": true,
-            "reference": "2023~2024 같은 달(8월)",
+            "reference": "2023~2024 같은 달(7월)",
             "top_sensors": [
               {
-                "sensor": "ambient_humidity_pct",
-                "psi": 4.136,
-                "ratio": 30.6
-              },
-              {
                 "sensor": "rf_power_w",
-                "psi": 7.004,
-                "ratio": 15.6
+                "psi": 6.641,
+                "ratio": 14.7
               },
               {
-                "sensor": "chamber_pressure_mtorr",
-                "psi": 4.571,
-                "ratio": 3.5
+                "sensor": "ambient_humidity_pct",
+                "psi": 1.723,
+                "ratio": 12.9
+              },
+              {
+                "sensor": "vibration_mm_s",
+                "psi": 5.034,
+                "ratio": 3.0
               }
             ],
             "shifted": [
-              "ambient_humidity_pct",
               "rf_power_w",
-              "chamber_pressure_mtorr"
+              "ambient_humidity_pct",
+              "vibration_mm_s"
             ]
           }
         },
         {
           "equipment_id": "ETCH-02",
-          "model_version": "production-v2",
+          "model_version": "production-v3",
           "n_predictions": 336,
           "batch_rmse": 3.164,
           "drift_check": {
@@ -745,40 +782,40 @@
             "drift": false,
             "detected_at": null,
             "detected_window_rmse": null,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
           "input_diagnostics": {
             "available": true,
-            "reference": "2023~2024 같은 달(8월)",
+            "reference": "2023~2024 같은 달(7월)",
             "top_sensors": [
               {
-                "sensor": "ambient_humidity_pct",
-                "psi": 4.302,
-                "ratio": 31.8
+                "sensor": "rf_power_w",
+                "psi": 7.794,
+                "ratio": 17.2
               },
               {
-                "sensor": "rf_power_w",
-                "psi": 7.931,
-                "ratio": 17.7
+                "sensor": "ambient_humidity_pct",
+                "psi": 1.732,
+                "ratio": 13.0
               },
               {
                 "sensor": "chamber_pressure_mtorr",
-                "psi": 7.657,
-                "ratio": 5.8
+                "psi": 6.94,
+                "ratio": 5.3
               }
             ],
             "shifted": [
-              "ambient_humidity_pct",
               "rf_power_w",
+              "ambient_humidity_pct",
               "chamber_pressure_mtorr"
             ]
           }
         },
         {
           "equipment_id": "ETCH-03",
-          "model_version": "production-v2",
+          "model_version": "production-v3",
           "n_predictions": 336,
           "batch_rmse": 4.847,
           "drift_check": {
@@ -789,40 +826,40 @@
             "drift": false,
             "detected_at": null,
             "detected_window_rmse": null,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
           "input_diagnostics": {
             "available": true,
-            "reference": "2023~2024 같은 달(8월)",
+            "reference": "2023~2024 같은 달(7월)",
             "top_sensors": [
               {
-                "sensor": "ambient_humidity_pct",
-                "psi": 3.975,
-                "ratio": 29.4
+                "sensor": "rf_power_w",
+                "psi": 7.752,
+                "ratio": 17.1
               },
               {
-                "sensor": "rf_power_w",
-                "psi": 7.931,
-                "ratio": 17.7
+                "sensor": "ambient_humidity_pct",
+                "psi": 1.275,
+                "ratio": 9.6
               },
               {
                 "sensor": "chamber_pressure_mtorr",
-                "psi": 6.952,
-                "ratio": 5.3
+                "psi": 5.847,
+                "ratio": 4.4
               }
             ],
             "shifted": [
-              "ambient_humidity_pct",
               "rf_power_w",
+              "ambient_humidity_pct",
               "chamber_pressure_mtorr"
             ]
           }
         },
         {
           "equipment_id": "ETCH-04",
-          "model_version": "production-v2",
+          "model_version": "production-v3",
           "n_predictions": 336,
           "batch_rmse": 2.378,
           "drift_check": {
@@ -833,40 +870,40 @@
             "drift": false,
             "detected_at": null,
             "detected_window_rmse": null,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
           "input_diagnostics": {
             "available": true,
-            "reference": "2023~2024 같은 달(8월)",
+            "reference": "2023~2024 같은 달(7월)",
             "top_sensors": [
               {
-                "sensor": "ambient_humidity_pct",
-                "psi": 3.852,
-                "ratio": 28.5
+                "sensor": "rf_power_w",
+                "psi": 7.752,
+                "ratio": 17.1
               },
               {
-                "sensor": "rf_power_w",
-                "psi": 7.931,
-                "ratio": 17.7
+                "sensor": "ambient_humidity_pct",
+                "psi": 1.355,
+                "ratio": 10.2
               },
               {
                 "sensor": "chamber_pressure_mtorr",
-                "psi": 6.835,
-                "ratio": 5.2
+                "psi": 5.71,
+                "ratio": 4.3
               }
             ],
             "shifted": [
-              "ambient_humidity_pct",
               "rf_power_w",
+              "ambient_humidity_pct",
               "chamber_pressure_mtorr"
             ]
           }
         },
         {
           "equipment_id": "ETCH-05",
-          "model_version": "production-v2",
+          "model_version": "production-v3",
           "n_predictions": 336,
           "batch_rmse": 4.154,
           "drift_check": {
@@ -877,34 +914,33 @@
             "drift": false,
             "detected_at": null,
             "detected_window_rmse": null,
-            "threshold": 5.0,
+            "threshold": 4.0,
             "window_cycles": 24,
             "consecutive_required": 3
           },
           "input_diagnostics": {
             "available": true,
-            "reference": "2023~2024 같은 달(8월)",
+            "reference": "2023~2024 같은 달(7월)",
             "top_sensors": [
               {
-                "sensor": "ambient_humidity_pct",
-                "psi": 3.547,
-                "ratio": 26.2
-              },
-              {
                 "sensor": "rf_power_w",
-                "psi": 6.42,
-                "ratio": 14.3
+                "psi": 6.245,
+                "ratio": 13.8
               },
               {
-                "sensor": "chamber_pressure_mtorr",
-                "psi": 4.079,
-                "ratio": 3.1
+                "sensor": "ambient_humidity_pct",
+                "psi": 1.32,
+                "ratio": 9.9
+              },
+              {
+                "sensor": "vibration_mm_s",
+                "psi": 4.246,
+                "ratio": 2.6
               }
             ],
             "shifted": [
-              "ambient_humidity_pct",
               "rf_power_w",
-              "chamber_pressure_mtorr"
+              "ambient_humidity_pct"
             ]
           }
         }
@@ -912,7 +948,7 @@
       "retrain_after_phase": {
         "equipment_id": "ETCH-01",
         "until": "2025-07-27T13:30:00",
-        "started_at": "2026-10-01T00:23:11",
+        "started_at": "2026-10-02T00:19:53",
         "promoted": true,
         "new_rmse": 2.642,
         "champion_rmse": 8.038,
@@ -924,10 +960,10 @@
           "beats_champion": true,
           "no_regression_golden": true
         },
-        "registered_version": 2,
+        "registered_version": 3,
         "previous_version": "production-v1",
-        "new_version": "production-v2",
-        "finished_at": "2026-10-01T00:23:13"
+        "new_version": "production-v3",
+        "finished_at": "2026-10-02T00:19:55"
       }
     }
   ],
@@ -936,9 +972,9 @@
     "model_loaded": true,
     "loading_mode": "eager",
     "model_source": "mlflow",
-    "model_version": "production-v2",
-    "startup_seconds": 2.19994654300001,
-    "model_load_seconds": 0.0240109580000194
+    "model_version": "production-v3",
+    "startup_seconds": 2.7956477089901455,
+    "model_load_seconds": 0.02341841597808525
   },
-  "aiops_log": "2026-10-01 00:23:11 [WARN] drift detected equipment=ETCH-01 at=2025-07-22T01:30:00 window_rmse=10.32 > 5.0 x3 consecutive | suspect sensors: rf_power_w(x10.3), vibration_mm_s(x2.6), chamber_pressure_mtorr(x2.4) → 설비 엔지니어 점검 요청\n2026-10-01 00:23:11 [INFO] retrain triggered (warm start from production-v1, data=last 7d until 2025-07-27T13:30:00, all equipment)\n2026-10-01 00:23:11 [WARN] drift detected equipment=ETCH-02 at=2025-07-21T13:30:00 window_rmse=8.54 > 5.0 x3 consecutive | suspect sensors: rf_power_w(x8.5), vibration_mm_s(x2.0), chamber_pressure_mtorr(x1.7) → 설비 엔지니어 점검 요청\n2026-10-01 00:23:11 [WARN] drift detected equipment=ETCH-03 at=2025-07-22T01:30:00 window_rmse=8.07 > 5.0 x3 consecutive | suspect sensors: rf_power_w(x8.2), vibration_mm_s(x1.7), chamber_pressure_mtorr(x1.4) → 설비 엔지니어 점검 요청\n2026-10-01 00:23:11 [WARN] drift detected equipment=ETCH-04 at=2025-07-22T01:30:00 window_rmse=6.36 > 5.0 x3 consecutive | suspect sensors: rf_power_w(x7.3), chamber_temperature_c(x2.1), process_time_sec(x1.8) → 설비 엔지니어 점검 요청\n2026-10-01 00:23:11 [WARN] drift detected equipment=ETCH-05 at=2025-07-22T01:30:00 window_rmse=6.53 > 5.0 x3 consecutive | suspect sensors: rf_power_w(x12.3), chamber_pressure_mtorr(x4.6), vibration_mm_s(x3.7) → 설비 엔지니어 점검 요청\n2026-10-01 00:23:13 [OK] new_rmse=2.64 (champion 8.04) recall=0.84 precision=0.92 golden_rmse=3.4 - production promoted: production-v1 → production-v2, serving cache swapped\n"
+  "aiops_log": "2026-10-02 00:19:50 [WARN] drift detected equipment=ETCH-03 at=2025-06-04T11:30:00 window_rmse=5.92 > 4.0 x3 consecutive | suspect sensors: ambient_humidity_pct(x21.0), ambient_temperature_c(x3.3), cooling_water_temperature_c(x2.6) → 설비 엔지니어 점검 요청\n2026-10-02 00:19:50 [INFO] retrain triggered (warm start from production-v1, data=last 7d until 2025-06-07T23:30:00, all equipment)\n2026-10-02 00:19:53 [FAIL] new_rmse=2.39 (champion 2.55) recall=0.00 precision=0.00 golden_rmse=3.11 - gate failed ['high_recall', 'high_precision'], keep production-v1\n2026-10-02 00:19:53 [WARN] drift detected equipment=ETCH-01 at=2025-07-22T01:30:00 window_rmse=10.32 > 4.0 x3 consecutive | suspect sensors: rf_power_w(x10.2), vibration_mm_s(x2.6), chamber_pressure_mtorr(x2.4) → 설비 엔지니어 점검 요청\n2026-10-02 00:19:53 [INFO] retrain triggered (warm start from production-v1, data=last 7d until 2025-07-27T13:30:00, all equipment)\n2026-10-02 00:19:53 [WARN] drift detected equipment=ETCH-02 at=2025-07-21T01:30:00 window_rmse=6.19 > 4.0 x3 consecutive | suspect sensors: rf_power_w(x8.4), vibration_mm_s(x2.0), chamber_pressure_mtorr(x1.7) → 설비 엔지니어 점검 요청\n2026-10-02 00:19:53 [WARN] drift detected equipment=ETCH-03 at=2025-07-22T01:30:00 window_rmse=8.07 > 4.0 x3 consecutive | suspect sensors: rf_power_w(x8.1), vibration_mm_s(x1.7), chamber_pressure_mtorr(x1.4) → 설비 엔지니어 점검 요청\n2026-10-02 00:19:53 [WARN] drift detected equipment=ETCH-04 at=2025-07-22T01:30:00 window_rmse=6.36 > 4.0 x3 consecutive | suspect sensors: rf_power_w(x7.3), chamber_temperature_c(x2.1), process_time_sec(x1.8) → 설비 엔지니어 점검 요청\n2026-10-02 00:19:54 [WARN] drift detected equipment=ETCH-05 at=2025-07-22T01:30:00 window_rmse=6.53 > 4.0 x3 consecutive | suspect sensors: rf_power_w(x12.2), chamber_pressure_mtorr(x4.6), vibration_mm_s(x3.7) → 설비 엔지니어 점검 요청\n2026-10-02 00:19:55 [OK] new_rmse=2.64 (champion 8.04) recall=0.84 precision=0.92 golden_rmse=3.4 - production promoted: production-v1 → production-v3, serving cache swapped\n"
 }

@@ -38,10 +38,11 @@ GATE_RMSE_MAX = _env_float("GATE_RMSE_MAX", 4.0)
 GATE_RECALL_MIN = _env_float("GATE_RECALL_MIN", 0.80)
 GATE_PRECISION_MIN = _env_float("GATE_PRECISION_MIN", 0.80)
 
-# 성능 드리프트 판정: 12시간(24사이클) 윈도우 RMSE가 5.0을 3회 연속 초과(=36시간 지속)하면 드리프트.
-# 근거: scripts/analyze_drift_policy.py — 2025 정상 구간 오탐 0건/장비·월, 드리프트 탐지 지연 36시간.
+# 성능 드리프트 판정: 12시간(24사이클) 윈도우 RMSE가 4.0을 3회 연속 초과(=36시간 지속)하면 드리프트.
+# 4.0 = 배포 게이트와 같은 품질선. 근거: scripts/analyze_drift_policy.py — 2025 정상 구간 오탐 0.03회/장비·월
+# (운영 목표 1회 미만), 드리프트 윈도우 판정률 76.8%(5.0은 60.5%), 탐지 지연 36시간(5.0과 동일).
 DRIFT_WINDOW = _env_int("DRIFT_WINDOW", 24)
-DRIFT_RMSE_THRESHOLD = _env_float("DRIFT_RMSE_THRESHOLD", 5.0)
+DRIFT_RMSE_THRESHOLD = _env_float("DRIFT_RMSE_THRESHOLD", 4.0)
 DRIFT_CONSECUTIVE = _env_int("DRIFT_CONSECUTIVE", 3)
 
 # 재학습(warm start fine-tuning) 정책
