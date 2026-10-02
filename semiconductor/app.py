@@ -9,6 +9,7 @@ import re
 import threading
 import time
 import uuid
+import json
 from collections import deque
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
@@ -246,6 +247,40 @@ def create_app():
     alerts = HighAlerts()  # HIGH 예측 경보 (aiops.log + 선택 웹훅)
     run_metrics = {}  # MLflow run_id -> 검증 지표 (불변이라 한 번만 읽는다)
 
+    # jsonl 파일 저장
+    prediction_log_lock = threading.Lock()
+
+    def save_prediction_log(equipment_id, model, pairs):
+        recorded_at = datetime.now().isoformat(timespec="seconds")
+
+        lines = [
+            json.dumps(
+                {
+                    "recorded_at": recorded_at,
+                    "equipment_id": equipment_id,
+                    "model_version": model.version,
+                    "model_source": manager.source,
+                    **pair,
+                },
+                ensure_ascii=False,
+                allow_nan=False,
+            )
+            + "\n"
+            for pair in pairs
+        ]
+
+        try:
+            with prediction_log_lock:
+                with (LOG_DIR / "predictions.jsonl").open(
+                    "a", encoding="utf-8"
+                ) as file:
+                    file.writelines(lines)
+        except OSError:
+            logger.exception("Prediction log saving failed")
+            raise HTTPException(
+                503, "Prediction log could not be saved."
+            )
+
     @asynccontextmanager
     async def lifespan(app):
         start = time.perf_counter()
@@ -335,6 +370,10 @@ def create_app():
         predicted = model.predict(x)
         pairs = [{"timestamp": p.timestamp.isoformat(), "predicted": round(float(s), 3),
                   "actual": round(p.anomaly_score, 3)} for p, s in zip(request.records[SEQ_LEN:], predicted)]
+
+        # predictions.jsonl 추가
+        save_prediction_log(request.equipment_id, model, pairs)
+
         drift = monitor.observe(request.equipment_id, pairs)
         # 월 경계에 걸친 배치는 중앙 시점의 달을 기준 분포로 쓴다 (7/27~8/3 배치 → 7월 기준)
         diagnostics = diagnose(model.profile, request.records[len(request.records) // 2].timestamp, raw)
