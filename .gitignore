@@ -12,4 +12,18 @@ semiconductor_state/uploads/
 semiconductor_state/*.tmp
 semiconductor_state/bundles/*
 !semiconductor_state/bundles/20261001T002500-c775a1/
-semiconductor_state/bundles/*/registration.json
+
+# 실습 산출물: 지금 코드로는 생기지 않지만, 손으로 만들어도 다시 올라가지 않게
+evidence/
+docs/
+
+# 로컬 환경·편집기 (웹훅 주소 같은 비밀값은 .env에)
+.env
+.idea/
+.vscode/
+.claude/
+.ipynb_checkpoints/
+.pytest_cache/
+
+# MLflow 기본 로컬 저장소: 추적 주소를 지정하지 않고 실행하면 생길 수 있음
+mlruns/

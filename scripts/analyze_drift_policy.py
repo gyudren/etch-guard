@@ -1,6 +1,6 @@
 """드리프트 판정 정책(윈도우·임계값·연속 횟수)과 계절 기준 분포를 실측으로 결정하는 분석 스크립트.
 
-python scripts/analyze_drift_policy.py   →  evidence/04_drift_policy.json
+python scripts/analyze_drift_policy.py   →  정책표·PSI 결과를 화면에 출력
 
 1) Production 후보 모델로 2025 정상 구간(검증+테스트)과 드리프트 구간을 예측한다.
 2) 윈도우(12h/24h) × 임계값(4.0~6.0) × 연속 횟수(1~3)별
@@ -101,9 +101,6 @@ def main():
     chosen = next(r for r in result["policy_table"]
                   if (r["window_cycles"], r["threshold"], r["consecutive"]) == (24, 4.0, 3))
     result["chosen_policy"] = chosen
-    out = Path("evidence/04_drift_policy.json")
-    out.parent.mkdir(exist_ok=True)
-    out.write_text(json.dumps(result, indent=2, ensure_ascii=False))
     print(f"{'W(h)':>5} {'T':>4} {'K':>2} {'FA/eq-month':>12} {'flagged':>8}  delay(h)")
     for r in result["policy_table"]:
         print(f"{r['window_hours']:>5} {r['threshold']:>4} {r['consecutive']:>2} "

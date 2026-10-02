@@ -30,11 +30,10 @@ python scripts/simulate_drift.py                              # (다른 터미�
 | Lazy/Eager 측정 | `python -m semiconductor.verify --spawn --mode lazy --label local_lazy` (eager도 동일) |
 | 게이트 실패 시연 | `python -m semiconductor.train --register --bundle semiconductor_state/bundles/<이름> --rmse-gate 0` |
 | 버전 이력·롤백 | `python -m semiconductor.registry list` / `python -m semiconductor.registry rollback --version 1` |
-| 드리프트 정책 근거 | `python scripts/analyze_drift_policy.py` → `evidence/04_drift_policy.json` |
-| warm vs scratch | `python scripts/compare_retrain_strategy.py` → `evidence/06_retrain_strategy.json` |
-| 통합 테스트 (11개) | `pip install -r semiconductor/requirements-test.txt && python -m unittest semiconductor.test_pipeline -v` |
+| 드리프트 정책 근거 | `python scripts/analyze_drift_policy.py` → 정책표·PSI 결과 출력 |
+| warm vs scratch | `python scripts/compare_retrain_strategy.py` → 비교 결과 출력 |
+| 통합 테스트 (13개) | `pip install -r semiconductor/requirements-test.txt && python -m unittest semiconductor.test_pipeline -v` |
 | Docker | `docker compose up --build -d` → `python -m semiconductor.verify --label docker` |
-| Swagger 요청·응답 캡처 | `pip install playwright && python scripts/capture_api_screens.py` → `docs/screenshots/api/` (Production v1 상태의 서버에서 실행) |
 
 ## 구조
 
@@ -45,25 +44,28 @@ semiconductor/
   train.py             base 학습·평가·게이트·MLflow 등록/승격, fine_tune(warm start)
   runtime.py           Bundle, ModelManager(_load_from_local/_load_from_mlflow, Lazy/Eager, 무중단 reload)
   mlflow_model.py      pyfunc 래퍼 (모델+스케일러+기준분포를 한 버전으로)
-  app.py               FastAPI 엔드포인트, 운영 지표 미들웨어, 예측 기록
+  app.py               FastAPI 엔드포인트, 운영 지표 미들웨어, 대시보드용 메모리 버퍼
+  demo_seed.py         발표용 데모 데이터 (DEMO_SEED=1, 메모리에만 채움)
   monitoring/
     drift_detector.py  compute_rmse, is_drift, DriftMonitor(장비별 12h 윈도우 × 3회 연속)
     retrain_trigger.py check_and_trigger → [WARN]→[INFO]→[OK]/[FAIL], 백그라운드 재학습·락
-    data_drift.py      같은 달 기준 PSI → 원인 후보 센서 순위(경보 아님)
+    data_drift.py      같은 달 기준 PSI → 원인 후보 센서 순위(경보 아님), 단건 예측의 z-score 점검 우선순위
+    alerts.py          HIGH 경보 (같은 장비 10분 중복 억제, HIGH 지속 시 2시간마다 재알림)
   registry.py          버전 목록·롤백 CLI
   verify.py            HTTP 스모크·Lazy/Eager 측정
   static/dashboard.html 실시간 대시보드(`/`) · Real-time 스위치로 정상/드리프트 트래픽 생성
   static/index.html    운영 콘솔(`/console`: 업로드·예측·드리프트 시뮬레이션·재학습 로그)
-  test_pipeline.py     Day1~3 통합 테스트 (임시 상태·임시 Registry)
-scripts/  simulate_drift.py · analyze_drift_policy.py · compare_retrain_strategy.py · capture_api_screens.py · generate_semiconductor_etch_data.py
-evidence/ 실행 로그·측정 JSON         docs/  기획서·스크린샷
+  test_pipeline.py     Day1~3 통합 테스트 13개 (임시 상태·임시 Registry)
+scripts/  simulate_drift.py · analyze_drift_policy.py · compare_retrain_strategy.py · generate_semiconductor_etch_data.py
+data/     합성 데이터 CSV (장비 5대 × 3년, 30분 간격)
+semiconductor_state/  기본 번들(base)·local.json — 실행하면 MLflow DB·재학습 번들·업로드가 이 아래에 생김 (git 제외)
 ```
 
 ## API
 
 | Method | URL | 역할 |
 |---|---|---|
-| GET | `/` | 실시간 대시보드 (JENNIFER 스타일: TPS·X-view·윈도우 RMSE·시간대별 예측·EVENT) |
+| GET | `/` | 실시간 대시보드 (`?view=user` 설비 엔지니어 · `?view=ops` AIOps) |
 | GET | `/console` | 운영 콘솔 (업로드·예측·드리프트 시뮬레이션·재학습 로그) |
 | GET | `/health` | 상태·모델 버전·Lazy/Eager·로딩 시간 |
 | GET | `/ready` | 모델 로드 시 200, 미로드 503 |
@@ -71,10 +73,10 @@ evidence/ 실행 로그·측정 JSON         docs/  기획서·스크린샷
 | POST | `/predict/batch-test` | `{equipment_id, records[≥21, anomaly_score 포함]}` → 예측·드리프트 판정·원인 센서 |
 | GET | `/monitoring/status` | 윈도우 RMSE·판정, 재학습 이력, 엔드포인트별 p50/p95·에러율 |
 | GET | `/monitoring/dashboard` | 대시보드 스냅샷: 최근 3분 요청·지연, 오늘 시간대별 예측·HIGH, 장비 상태, 이벤트 |
-| GET | `/monitoring/timeseries?minutes=60` | 1초 간격 운영 지표 시계열(`logs/metrics.jsonl`), 최근 6시간 |
+| GET | `/monitoring/models?limit=10` | Registry 버전별 게이트 결과·검증 지표 (모델 이력, mlflow 모드) |
 | POST | `/data/upload` | CSV 검증·저장 (400: 형식 오류, 413: 64MiB 초과) |
 | GET | `/data/status` · `/data/example` · `/data/batch` | 데이터 현황 · 예측 예시 · 시뮬레이션 배치 |
-| GET | `/logs` · `/logs/{name}?tail=` | aiops.log·predictions.jsonl 조회 (읽기 전용) |
+| GET | `/logs` · `/logs/{filename}?tail=` | aiops.log 조회 (읽기 전용) |
 
 에러: 422(시퀀스 길이≠20, 음수 압력, 시간 역순·30분 간격 위반, `anomaly_score` 등 정답 누설 필드), 503(모델/Production 미준비).
 
@@ -131,9 +133,9 @@ Windows PowerShell에서는 `$env:MODEL_SOURCE="mlflow"; $env:LOADING_MODE="eage
 
 ### 4. 시연 순서
 
-대시보드(`/`)에서는 상단 **Real-time** 스위치를 `정상 트래픽`으로 켜면 브라우저가 실제 API를 계속 호출해 TPS·X-view·등급 분포가 움직이고, `드리프트 트래픽`으로 바꾸면 1~2분 안에 드리프트 감지 → 재학습 → 버전 교체가 EVENT 패널과 X-view 마커에 나타납니다.
+대시보드(`/`)에서는 상단 **Real-time** 스위치를 `정상 트래픽`으로 켜면 브라우저가 실제 API를 계속 호출해 장비별 예측 등급 분포와 점검 권고 표가 움직이고, `드리프트 트래픽`으로 바꾸면 1~2분 안에 드리프트 감지 → 재학습 → 버전 교체가 EVENT 패널과 모델 버전 이력에 나타납니다.
 
-**발표용 데모 데이터.** 서버를 막 띄우면 대시보드가 비어 있습니다. `DEMO_SEED=1`을 붙여 띄우면 기동 직후 실제 CSV의 정상 구간(기본 2025-07-11 기준 최근 5일, 장비 5대)을 Production 모델로 예측해 윈도우 RMSE 추이, 등급 분포, 장비 타일, 리본, 오늘 시간대별 예측·HIGH 차트를 채웁니다. 값은 모두 실제 예측과 실제 확정 점수이고, 기준일의 사이클을 오늘 같은 시각에 대응시킨 것만 다릅니다. 메모리에만 채우므로 재기동하거나 옵션을 빼면 원래대로이고, `predictions.jsonl`에는 쓰지 않습니다. 시연 로그를 개발 로그와 분리하려면 `AIOPS_LOG_DIR`도 바꿉니다. `/?rt=normal`로 열면 정상 트래픽이 바로 켜집니다.
+**발표용 데모 데이터.** 서버를 막 띄우면 대시보드가 비어 있습니다. `DEMO_SEED=1`을 붙여 띄우면 기동 직후 실제 CSV의 정상 구간(기본 2025-07-11 기준 최근 5일, 장비 5대)을 Production 모델로 예측해 윈도우 RMSE 추이, 장비별 예측 등급 분포, 위험 리본, 예측 vs 확정 점수, 오늘의 HIGH 경보 차트를 채웁니다. 값은 모두 실제 예측과 실제 확정 점수이고, 기준일의 사이클을 오늘 같은 시각에 대응시킨 것만 다릅니다. 메모리에만 채우므로 재기동하거나 옵션을 빼면 원래대로입니다. 시연 로그를 개발 로그와 분리하려면 `AIOPS_LOG_DIR`도 바꿉니다. `/?rt=normal`로 열면 정상 트래픽이 바로 켜집니다.
 
 ```bash
 DEMO_SEED=1 AIOPS_LOG_DIR=logs/demo MODEL_SOURCE=mlflow LOADING_MODE=eager python -m uvicorn semiconductor.app:app --port 8000
@@ -141,10 +143,10 @@ DEMO_SEED=1 AIOPS_LOG_DIR=logs/demo MODEL_SOURCE=mlflow LOADING_MODE=eager pytho
 
 대시보드는 두 화면입니다. `/?view=user`(설비 엔지니어: 다음 공정 위험 리본, 점검 권고·HIGH 경보 표, 예측 vs 확정 점수)와 `/?view=ops`(AIOps: 운영 목표 SLO, 윈도우 RMSE, 모델 버전·게이트 이력, EVENT)이고 상단 버튼으로도 바꿉니다. 장비가 새로 HIGH가 되면 `[ALERT]` 경보가 aiops.log·화면 알림·웹훅(`ALERT_WEBHOOK_URL`)으로 나가며, 같은 장비는 `ALERT_COOLDOWN_SEC`(기본 600초) 안에 다시 울리지 않고 HIGH가 이어지면 `ALERT_REPEAT_SEC`(기본 7200초)마다 재알림합니다. 모델 이력은 `GET /monitoring/models`(Registry 버전별 게이트 결과·검증 지표)입니다.
 
-드리프트 시연을 한 번 하면 재학습된 새 버전이 Production이 되어 같은 드리프트가 다시 잡히지 않습니다. 다시 시연하려면 Production을 이전 버전으로 되돌린 뒤 서버를 재시작합니다(새 버전 기록은 Registry에 남습니다).
+드리프트 시연을 한 번 하면 재학습된 새 버전이 Production이 되어 같은 드리프트가 다시 잡히지 않습니다. 다시 시연하려면 Production을 기본 모델(v1)로 되돌린 뒤 서버를 재시작합니다(새 버전 기록은 Registry에 남습니다).
 
 ```bash
-python -c "import mlflow; from mlflow.tracking import MlflowClient; from semiconductor.config import tracking_uri, MODEL_NAME, ALIAS; mlflow.set_tracking_uri(tracking_uri()); MlflowClient().set_registered_model_alias(MODEL_NAME, ALIAS, '7')"
+python -m semiconductor.registry rollback --version 1
 ```
 
 기준일과 길이는 `DEMO_SEED_DATE`(기본 2025-07-11, 드리프트 이전이어야 함), `DEMO_SEED_CYCLES`(기본 240 = 12h 윈도우 10개)로 바꿀 수 있습니다. Docker는 `DEMO_SEED=1 docker compose up -d`입니다.
@@ -171,4 +173,3 @@ http://localhost:8000 으로 접속합니다. 8000 포트를 이미 쓰고 있�
 | `/predict`가 503 (mlflow 모드) | Production 모델이 없는 상태입니다. 2단계 등록을 실행 |
 | 코드를 고쳤는데 화면이 그대로 | 서버를 재시작합니다(개발 중에는 `--reload` 옵션 사용) |
 | 시연 후 처음 상태(v1)로 되돌리기 | `python -m semiconductor.registry rollback --version 1` 후 서버 재시작 |
-| 시연 후 `semiconductor_state/local.json`이 변경됨 | 재학습 결과가 기록된 것입니다. 커밋하지 말고 `git checkout semiconductor_state/local.json`으로 되돌립니다 |

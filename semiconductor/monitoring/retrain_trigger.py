@@ -75,7 +75,7 @@ class RetrainController:
                           champion_rmse=round(champ["rmse"], 3), checks=result["gate"]["checks"],
                           registered_version=result.get("registry", {}).get("registered_version"))
             if result["gate"]["passed"]:
-                old, new = self.manager.reload()
+                old, new = self.manager.reload(result.get("bundle"))
                 record.update(previous_version=old, new_version=new)
                 notify("info", f"[OK] {summary} - production promoted: {old} → {new}, serving cache swapped")
             else:

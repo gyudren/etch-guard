@@ -1,6 +1,6 @@
 """재학습 방식 비교: warm start fine-tuning vs 같은 7일 데이터로 처음부터(scratch) 학습.
 
-python scripts/compare_retrain_strategy.py  →  evidence/06_retrain_strategy.json
+python scripts/compare_retrain_strategy.py  →  비교 결과를 화면에 출력
 드리프트 감지 시점(2025-07-27 13:30)까지 최근 7일·5대 장비 데이터만 사용하고,
 평가는 ① 최근 홀드아웃 ② 그 다음 1주(미사용 미래) ③ 고정 정상 기준셋(망각 여부) 세 가지다.
 """
@@ -59,8 +59,6 @@ def main():
         results[name] = {"lr": lr, "epochs": epochs, "seeds": runs,
                          "mean": {k: round(float(np.mean([r[k] for r in runs])), 3) for k in sets},
                          "std": {k: round(float(np.std([r[k] for r in runs])), 3) for k in sets}}
-    Path("evidence").mkdir(exist_ok=True)
-    Path("evidence/06_retrain_strategy.json").write_text(json.dumps(results, indent=2))
     print(json.dumps(results, indent=2))
 
 

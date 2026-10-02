@@ -257,8 +257,6 @@ def fine_tune(series, until, base_dir, base_label, register=True):
     result["bundle"] = bundle.name
     if register:
         result["registry"] = register_bundle(bundle, result)
-    if result["gate"]["passed"]:
-        _write_pointer(bundle.name)  # 로컬 서빙 포인터도 새 Production과 동기화
     return result
 
 
@@ -283,7 +281,6 @@ def main():
         bundle, result = train_base((args.data or latest_data()).resolve(), args.epochs, args.batch_size, args.rmse_gate)
     if args.register:
         result["registry"] = register_bundle(bundle, result)
-        (bundle / "registration.json").write_text(json.dumps(result["registry"], indent=2))
     print(json.dumps({"bundle": str(bundle), "validation": result["validation"],
                       "test": result.get("test"), "drift": result.get("drift"), "gate": result["gate"],
                       "registry": result.get("registry")}, indent=2), flush=True)

@@ -1,4 +1,4 @@
-"""HTTP 스모크 검증 + Lazy/Eager 측정. 결과는 evidence/verification_<label>.json 으로 남긴다.
+"""HTTP 스모크 검증 + Lazy/Eager 측정. 결과 요약을 화면에 출력한다(파일로 남기지 않음).
 
 # 이미 떠 있는 서버 검증 (Docker 등)
 python -m semiconductor.verify --label docker --url http://127.0.0.1:8000
@@ -15,7 +15,6 @@ import sys
 import time
 import urllib.error
 import urllib.request
-from pathlib import Path
 
 from .config import ROOT
 
@@ -93,11 +92,7 @@ def main():
                "second_predict_s": evidence["second_predict"]["seconds"],
                "invalid_input_statuses": {k: v["status"] for k, v in evidence["invalid_inputs"].items()}}
     evidence["summary"] = summary
-    out = ROOT / "evidence" / f"verification_{args.label}.json"
-    out.parent.mkdir(exist_ok=True)
-    out.write_text(json.dumps(evidence, indent=2, ensure_ascii=False))
     print(json.dumps(summary, indent=2, ensure_ascii=False))
-    print(f"Evidence: {out}")
 
 
 if __name__ == "__main__":

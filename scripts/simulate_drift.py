@@ -9,7 +9,6 @@
 import argparse
 import json
 import time
-from pathlib import Path
 
 import requests
 
@@ -58,7 +57,6 @@ def wait_for_retrain(url, timeout=600):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--url", default="http://127.0.0.1:8000")
-    parser.add_argument("--out", default="evidence/05_simulate_drift.json")
     parser.add_argument("--phases", default=",".join(label for label, _, _ in SCENARIO),
                         help="쉼표로 구분한 실행 단계 (기본: 전체)")
     args = parser.parse_args()
@@ -75,11 +73,7 @@ def main():
         if label == "drift_injection":
             print(f"[retrain] {json.dumps(status['retrain']['last_result'], ensure_ascii=False)}")
     evidence["health_after"] = requests.get(f"{args.url}/health", timeout=30).json()
-    evidence["aiops_log"] = requests.get(f"{args.url}/logs/aiops.log", timeout=30).json()["content"]
     print(f"\n[done] model {evidence['health_before']['model_version']} → {evidence['health_after']['model_version']}")
-    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.out).write_text(json.dumps(evidence, indent=2, ensure_ascii=False))
-    print(f"evidence → {args.out}")
 
 
 if __name__ == "__main__":

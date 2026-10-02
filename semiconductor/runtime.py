@@ -74,11 +74,16 @@ class ModelManager:
                 self.load_seconds = time.perf_counter() - start
             return self.model
 
-    def reload(self):
+    def reload(self, bundle=None):
         """재학습 승격 후 무중단 교체: 새 모델을 락 밖에서 먼저 로드하고 참조만 원자적으로 바꾼다.
-        (캐시를 비우기만 하면 다음 요청이 로딩 시간을 떠안고, 비우지 않으면 옛 모델이 계속 응답한다.)"""
+        (캐시를 비우기만 하면 다음 요청이 로딩 시간을 떠안고, 비우지 않으면 옛 모델이 계속 응답한다.)
+        local 소스는 승격된 번들 이름(bundle)을 받아 메모리에서만 교체한다. local.json은 바꾸지 않으므로
+        서버를 재시작하면 저장소의 기본 번들로 돌아간다. mlflow 소스는 Production alias를 다시 읽는다."""
         start = time.perf_counter()
-        fresh = self._load()
+        if self.source == "local" and bundle:
+            fresh = Bundle(STATE / "bundles" / bundle, f"local-{bundle}")
+        else:
+            fresh = self._load()
         with self.lock:
             previous, self.model = self.model, fresh
             self.load_seconds = time.perf_counter() - start
